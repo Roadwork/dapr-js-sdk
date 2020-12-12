@@ -3,10 +3,7 @@
 import fetch from 'node-fetch';
 import express from 'express';
 
-interface FunctionDaprInputCallback {
-  (data: object): Promise<any>;
-}
-
+type FunctionDaprInputCallback = (data: object) => Promise<any>;
 export default class DaprBinding {
   url: string;
   urlDapr: string;
