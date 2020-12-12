@@ -14,7 +14,7 @@ export default class DaprBinding {
   express: express.Application;
 
   constructor(express: express.Application, daprUrl: string, daprPort: number) {
-    this.url = daprUrl || "127.0.0.1";
+    this.url = daprUrl || '127.0.0.1';
     this.port = daprPort || 3500;
     this.express = express;
 
@@ -41,12 +41,12 @@ export default class DaprBinding {
     const req = await fetch(`${this.urlDapr}/bindings/${bindingName}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         data,
-        operation: "create"
-      })
+        operation: 'create',
+      }),
     });
 
     let json;

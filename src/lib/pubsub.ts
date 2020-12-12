@@ -11,7 +11,7 @@ export default class DaprPubSub {
   express: express.Application;
 
   constructor(express: express.Application, daprUrl: string, daprPort: number) {
-    this.url = daprUrl || "127.0.0.1";
+    this.url = daprUrl || '127.0.0.1';
     this.port = daprPort || 3500;
     this.express = express;
 
@@ -26,14 +26,14 @@ export default class DaprPubSub {
     const r = await fetch(`${this.urlDapr}/publish/${pubSubName}/${topic}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body)
-    })
+      body: JSON.stringify(body),
+    });
   }
 
   subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {
-    this.express.use(express.json({ type: 'application/*+json' }))
+    this.express.use(express.json({ type: 'application/*+json' }));
 
     this.express.get('/dapr/subscribe', (req, res) => {
       console.log(`[Dapr API][route-${topic}] Registering route for queue ${pubSubName}`);
@@ -42,8 +42,8 @@ export default class DaprPubSub {
         {
           pubsubname: pubSubName,
           topic,
-          route: `route-${topic}`
-        }
+          route: `route-${topic}`,
+        },
       ]);
     });
 

@@ -1,7 +1,7 @@
 // https://github.com/dapr/docs/blob/master/reference/api/state_api.md
 
 import fetch from 'node-fetch';
-import express from "express";
+import express from 'express';
 
 interface IKeyValuePair {
   key: string;
@@ -15,7 +15,7 @@ export default class DaprState {
   express: express.Application;
 
   constructor(express: express.Application, daprUrl: string, daprPort: number) {
-    this.url = daprUrl || "127.0.0.1";
+    this.url = daprUrl || '127.0.0.1';
     this.port = daprPort || 3500;
     this.express = express;
 
@@ -29,7 +29,7 @@ export default class DaprState {
   async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<any> {
     const req = await fetch(`${this.urlDapr}/state/${storeName}`, {
       method: 'POST',
-      body: JSON.stringify(stateObjects)
+      body: JSON.stringify(stateObjects),
     });
 
     let json;
@@ -56,7 +56,7 @@ export default class DaprState {
   }
 
   async get(storeName: string, key: string): Promise<any> {
-    const req = await fetch(`${this.urlDapr}/state/${storeName}/${key}`)
+    const req = await fetch(`${this.urlDapr}/state/${storeName}/${key}`);
 
     let json;
 
@@ -86,7 +86,7 @@ export default class DaprState {
 
   async delete(storeName: string, key: string): Promise<number> {
     const req = await fetch(`${this.urlDapr}/state/${storeName}/${key}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
 
     return req.status;
