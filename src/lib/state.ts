@@ -14,7 +14,7 @@ export default class DaprState {
   port: number;
   express: express.Application;
 
-  constructor(express: express.Application, daprUrl, daprPort) {
+  constructor(express: express.Application, daprUrl: string, daprPort: number) {
     this.url = daprUrl || "127.0.0.1";
     this.port = daprPort || 3500;
     this.express = express;
@@ -26,7 +26,7 @@ export default class DaprState {
     this.urlDapr = `${this.url}:${this.port}/v1.0`;
   }
 
-  async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<number> {
+  async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<any> {
     const req = await fetch(`${this.urlDapr}/state/${storeName}`, {
       method: 'POST',
       body: JSON.stringify(stateObjects)
@@ -55,7 +55,7 @@ export default class DaprState {
     }
   }
 
-  async get(storeName: string, key: string): Promise<object> {
+  async get(storeName: string, key: string): Promise<any> {
     const req = await fetch(`${this.urlDapr}/state/${storeName}/${key}`)
 
     let json;

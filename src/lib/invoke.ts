@@ -8,7 +8,7 @@ export default class DaprInvoke {
   port: number;
   express: express.Application;
 
-  constructor(express: express.Application, daprUrl: string, daprPort) {
+  constructor(express: express.Application, daprUrl: string, daprPort: number) {
     this.url = daprUrl || "127.0.0.1";
     this.port = daprPort || 3500;
     this.express = express;
@@ -20,7 +20,7 @@ export default class DaprInvoke {
     this.urlDapr = `${this.url}:${this.port}/v1.0`;
   }
 
-  async receive(endpoint, cb: TypeDaprInvoke) {
+  async receive(endpoint: string, cb: TypeDaprInvoke) {
     this.express.post(endpoint, async (req, res) => {
       console.log(`[Dapr API][route-${endpoint}] Handling incoming message`);
       await cb(req, res);

@@ -10,7 +10,7 @@ export default class DaprPubSub {
   port: number;
   express: express.Application;
 
-  constructor(express: express.Application, daprUrl, daprPort) {
+  constructor(express: express.Application, daprUrl: string, daprPort: number) {
     this.url = daprUrl || "127.0.0.1";
     this.port = daprPort || 3500;
     this.express = express;

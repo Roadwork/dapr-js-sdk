@@ -14,7 +14,7 @@ export default class Dapr {
   invoke: DaprInvoke;
   express: express.Application;
 
-  constructor(daprUrl, daprPort) {
+  constructor(daprUrl: string, daprPort: number) {
     this.url = daprUrl || "127.0.0.1";
     this.port = daprPort || 3500;
 
