@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import express from "express";
+import TypeDaprInvoke from "./invoke.type";
 
 export default class DaprInvoke {
   url: string;
@@ -17,6 +18,13 @@ export default class DaprInvoke {
     }
 
     this.urlDapr = `${this.url}:${this.port}/v1.0`;
+  }
+
+  async receive(endpoint, cb: TypeDaprInvoke) {
+    this.express.post(endpoint, async (req, res) => {
+      console.log(`[Dapr API][route-${endpoint}] Handling incoming message`);
+      await cb(req, res);
+    });
   }
 
   async invoke(appId: string, methodName: string, data: object) {
