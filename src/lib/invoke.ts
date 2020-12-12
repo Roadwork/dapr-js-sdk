@@ -21,8 +21,10 @@ export default class DaprInvoke {
   }
 
   async receive(endpoint: string, cb: TypeDaprInvoke) {
+    console.log(`[Dapr API][Invoke] Registering Route: POST ${endpoint}`);
+
     this.express.post(endpoint, async (req, res) => {
-      console.log(`[Dapr API][route-${endpoint}] Handling incoming message`);
+      console.log(`[Dapr API][Invoke][route-${endpoint}] Handling incoming message`);
       await cb(req, res);
     });
   }

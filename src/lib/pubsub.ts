@@ -36,7 +36,7 @@ export default class DaprPubSub {
     this.express.use(express.json({ type: 'application/*+json' }));
 
     this.express.get('/dapr/subscribe', (req, res) => {
-      console.log(`[Dapr API][route-${topic}] Registering route for queue ${pubSubName}`);
+      console.log(`[Dapr API][PubSub][route-${topic}] Registering route for queue ${pubSubName}`);
 
       res.json([
         {
@@ -48,13 +48,13 @@ export default class DaprPubSub {
     });
 
     this.express.post(`/route-${topic}`, async (req, res) => {
-      console.log(`[Dapr API][route-${topic}] Handling incoming message`);
+      console.log(`[Dapr API][PubSub][route-${topic}] Handling incoming message`);
 
       // Process our callback
       await cb(req, res);
 
       // Let Dapr know that the message was processed correctly
-      console.log(`[Dapr API][route-${topic}] Ack'ing the message`);
+      console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
       return res.json({ success: true });
     });
   }
