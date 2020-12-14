@@ -27,6 +27,7 @@ export default class Dapr {
     this.urlDapr = `${this.url}:${this.daprPort}/v1.0`;
 
     this.express = express();
+    this.express.use(express.json()); // json middleware parser
 
     this.pubsub = new DaprPubSub(this.express, daprUrl, daprPort);
     this.state = new DaprState(this.express, daprUrl, daprPort);

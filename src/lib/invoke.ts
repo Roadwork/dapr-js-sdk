@@ -25,11 +25,18 @@ export default class DaprInvoke {
 
     this.express.post(endpoint, async (req, res) => {
       console.log(`[Dapr API][Invoke][route-${endpoint}] Handling incoming message`);
-      await cb(req, res);
+
+      try {
+        // await cb, this will also handle the res.json or others
+        await cb(req, res);
+      } catch (e) {
+        // If error, we want to throw it in a clean way
+        return res.status(500).json(e.message);
+      }
     });
   }
 
-  async invoke(appId: string, methodName: string, data: object) {
+  async invoke(appId: string, methodName: string, data: object = {}) {
     const req = await fetch(`${this.urlDapr}/invoke/${appId}/method/${methodName}`, {
       method: 'POST',
       headers: {
