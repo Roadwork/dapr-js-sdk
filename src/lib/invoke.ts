@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import TypeDaprInvoke from './invoke.type';
+import * as ErrorUtil from '../utils/ErrorUtil';
 
 export default class DaprInvoke {
   url: string;
@@ -57,11 +58,11 @@ export default class DaprInvoke {
         break;
       case 400:
         json = await req.json();
-        throw new Error(JSON.stringify(json));
+        return ErrorUtil.serializeError(json);
         break;
       case 500:
-        json = await req.json();
-        throw new Error(JSON.stringify(json));
+        json = await req.json();      
+        return ErrorUtil.serializeError(json);
         break;
       default:
         return null;

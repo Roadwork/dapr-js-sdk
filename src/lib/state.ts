@@ -2,6 +2,7 @@
 
 import fetch from 'node-fetch';
 import express from 'express';
+import * as ErrorUtil from '../utils/ErrorUtil';
 
 interface IKeyValuePair {
   key: string;
@@ -44,11 +45,11 @@ export default class DaprState {
         break;
       case 400: // BAD_REQUEST
         json = await req.json();
-        throw new Error(JSON.stringify(json));
+        return ErrorUtil.serializeError(json);
         break;
       case 500: // INTERNAL_SERVER_ERROR
         json = await req.json();
-        throw new Error(JSON.stringify(json));
+        return ErrorUtil.serializeError(json);
         break;
       default:
         return null;
@@ -73,11 +74,11 @@ export default class DaprState {
         break;
       case 400: // BAD_REQUEST
         json = await req.json();
-        throw new Error(JSON.stringify(json));
+        return ErrorUtil.serializeError(json);
         break;
       case 500: // INTERNAL_SERVER_ERROR
         json = await req.json();
-        throw new Error(JSON.stringify(json));
+        return ErrorUtil.serializeError(json);
         break;
       default:
         return null;
