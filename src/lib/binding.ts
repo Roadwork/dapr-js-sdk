@@ -29,8 +29,11 @@ export default class DaprBinding {
     this.express.use(express.json()); // Accept dapr format
 
     this.express.post(`/${bindingName}`, async (req, res) => {
-      await cb(req?.body);
-      res.status(200).send();
+      // send the processing status first, since the cb might take longer than the expected wait time here
+      // @todo: we do skip the usage of the dead-letter queue though... 
+      res.status(200).send(); 
+      
+      await cb(req?.body); 
     });
   }
 
