@@ -1,8 +1,9 @@
-// https://github.com/dapr/docs/blob/master/reference/api/state_api.md
+// https://docs.dapr.io/reference/api/pubsub_api/
 
 import fetch from 'node-fetch';
 import express from 'express';
 import TypeDaprPubSub from './pubsub.type';
+import HttpStatusCode from '../enum/HttpStatusCode.enum';
 
 export default class DaprPubSub {
   url: string;
@@ -22,14 +23,17 @@ export default class DaprPubSub {
     this.urlDapr = `${this.url}:${this.port}/v1.0`;
   }
 
-  async publish(pubSubName: string, topic: string, body: object = {}): Promise<void> {
-    const r = await fetch(`${this.urlDapr}/publish/${pubSubName}/${topic}`, {
+  async publish(pubSubName: string, topic: string, body: object = {}): Promise<number> {
+    const res = await fetch(`${this.urlDapr}/publish/${pubSubName}/${topic}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
     });
+
+    // Returns 200 or 500
+    return res.status;
   }
 
   subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {

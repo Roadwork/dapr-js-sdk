@@ -2,7 +2,8 @@
 
 import fetch from 'node-fetch';
 import express from 'express';
-import * as ErrorUtil from '../utils/ErrorUtil';
+import * as ErrorUtil from '../utils/Error.util';
+import ResponseUtil from '../utils/Response.util';
 
 interface IKeyValuePair {
   key: string;
@@ -27,62 +28,17 @@ export default class DaprState {
     this.urlDapr = `${this.url}:${this.port}/v1.0`;
   }
 
-  async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<any> {
-    const req = await fetch(`${this.urlDapr}/state/${storeName}`, {
+  async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<object> {
+    const res = await fetch(`${this.urlDapr}/state/${storeName}`, {
       method: 'POST',
       body: JSON.stringify(stateObjects),
     });
-
-    let json;
-
-    switch (req.status) {
-      case 200: // OK
-        json = await req.json();
-        return json;
-        break;
-      case 204: // NO_CONTENT
-        return null;
-        break;
-      case 400: // BAD_REQUEST
-        json = await req.json();
-        return ErrorUtil.serializeError(json);
-        break;
-      case 500: // INTERNAL_SERVER_ERROR
-        json = await req.json();
-        return ErrorUtil.serializeError(json);
-        break;
-      default:
-        return null;
-    }
+    return ResponseUtil.handleResponse(res);
   }
 
-  async get(storeName: string, key: string): Promise<any> {
-    const req = await fetch(`${this.urlDapr}/state/${storeName}/${key}`);
-
-    let json;
-
-    // @todo (200, 204, 400, 500)
-    switch (req.status) {
-      case 200: // OK
-        json = await req.json();
-        return json;
-        break;
-      case 204: // NO_CONTENT
-        console.log(req.status);
-        console.log(req.statusText);
-        return null;
-        break;
-      case 400: // BAD_REQUEST
-        json = await req.json();
-        return ErrorUtil.serializeError(json);
-        break;
-      case 500: // INTERNAL_SERVER_ERROR
-        json = await req.json();
-        return ErrorUtil.serializeError(json);
-        break;
-      default:
-        return null;
-    }
+  async get(storeName: string, key: string): Promise<object> {
+    const res = await fetch(`${this.urlDapr}/state/${storeName}/${key}`);
+    return ResponseUtil.handleResponse(res);
   }
 
   async delete(storeName: string, key: string): Promise<number> {

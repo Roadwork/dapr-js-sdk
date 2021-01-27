@@ -1,7 +1,8 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import TypeDaprInvoke from './invoke.type';
-import * as ErrorUtil from '../utils/ErrorUtil';
+import * as ErrorUtil from '../utils/Error.util';
+import ResponseUtil from '../utils/Response.util';
 
 export default class DaprInvoke {
   url: string;
@@ -38,7 +39,7 @@ export default class DaprInvoke {
   }
 
   async invoke(appId: string, methodName: string, data: object = {}) {
-    const req = await fetch(`${this.urlDapr}/invoke/${appId}/method/${methodName}`, {
+    const res = await fetch(`${this.urlDapr}/invoke/${appId}/method/${methodName}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -46,26 +47,6 @@ export default class DaprInvoke {
       body: JSON.stringify(data),
     });
 
-    let json;
-
-    switch (req.status) {
-      case 200:
-        json = await req.json();
-        return json;
-        break;
-      case 204:
-        return null;
-        break;
-      case 400:
-        json = await req.json();
-        return ErrorUtil.serializeError(json);
-        break;
-      case 500:
-        json = await req.json();      
-        return ErrorUtil.serializeError(json);
-        break;
-      default:
-        return null;
-    }
+    return ResponseUtil.handleResponse(res);
   }
 }

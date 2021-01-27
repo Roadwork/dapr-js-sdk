@@ -1,6 +1,6 @@
 {
   "name": "@roadwork/dapr-js-sdk",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "description": "An unofficial Dapr (https://dapr.io) SDK for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

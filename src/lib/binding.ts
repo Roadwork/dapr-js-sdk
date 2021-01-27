@@ -2,7 +2,8 @@
 
 import fetch from 'node-fetch';
 import express from 'express';
-import * as ErrorUtil from '../utils/ErrorUtil';
+import HttpStatusCode from '../enum/HttpStatusCode.enum';
+import ResponseUtil from '../utils/Response.util';
 
 type FunctionDaprInputCallback = (data: object) => Promise<any>;
 export default class DaprBinding {
@@ -29,17 +30,20 @@ export default class DaprBinding {
     this.express.use(express.json()); // Accept dapr format
 
     this.express.post(`/${bindingName}`, async (req, res) => {
-      // send the processing status first, since the cb might take longer than the expected wait time here
-      // @todo: we do skip the usage of the dead-letter queue though... 
-      res.status(200).send(); 
+      req.setTimeout(60 * 1000); // amount of seconds to wait for the request CB to finalize
       
       await cb(req?.body); 
+
+      // we send the processing status after we are done processing
+      // note: if the callback takes longer than the expected wait time in the queue, it might be that this never gets called
+      // @todo: can we do this cleaner without sending the response directly?
+      res.status(HttpStatusCode.OK).send(); 
     });
   }
 
   // Send an event to an external system
-  async send(bindingName: string, data: object) {
-    const req = await fetch(`${this.urlDapr}/bindings/${bindingName}`, {
+  async send(bindingName: string, data: object): Promise<object> {
+    const res = await fetch(`${this.urlDapr}/bindings/${bindingName}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,25 +54,6 @@ export default class DaprBinding {
       }),
     });
 
-    let json;
-
-    switch (req.status) {
-      case 200: // OK
-        return;
-        break;
-      case 204: // NO_CONTENT
-        return null;
-        break;
-      case 400: // BAD_REQUEST
-        json = await req.json();
-        return ErrorUtil.serializeError(json);
-        break;
-      case 500: // INTERNAL_SERVER_ERROR
-        json = await req.json();
-        return ErrorUtil.serializeError(json);
-        break;
-      default:
-        return null;
-    }
+    return ResponseUtil.handleResponse(res);
   }
 }
