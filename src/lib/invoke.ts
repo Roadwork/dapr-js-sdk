@@ -5,21 +5,12 @@ import * as ErrorUtil from '../utils/Error.util';
 import ResponseUtil from '../utils/Response.util';
 
 export default class DaprInvoke {
-  url: string;
-  urlDapr: string;
-  port: number;
+  daprUrl: string;
   express: express.Application;
 
-  constructor(express: express.Application, daprUrl: string, daprPort: number) {
-    this.url = daprUrl || '127.0.0.1';
-    this.port = daprPort || 3500;
+  constructor(express: express.Application, daprUrl: string) {
+    this.daprUrl = daprUrl;
     this.express = express;
-
-    if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
-      this.url = `http://${this.url}`;
-    }
-
-    this.urlDapr = `${this.url}:${this.port}/v1.0`;
   }
 
   async receive(endpoint: string, cb: TypeDaprInvoke) {
@@ -39,7 +30,7 @@ export default class DaprInvoke {
   }
 
   async invoke(appId: string, methodName: string, data: object = {}) {
-    const res = await fetch(`${this.urlDapr}/invoke/${appId}/method/${methodName}`, {
+    const res = await fetch(`${this.daprUrl}/invoke/${appId}/method/${methodName}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

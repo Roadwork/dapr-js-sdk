@@ -29,10 +29,10 @@ export default class Dapr {
     this.express = express();
     this.express.use(express.json()); // json middleware parser
 
-    this.pubsub = new DaprPubSub(this.express, daprUrl, daprPort);
-    this.state = new DaprState(this.express, daprUrl, daprPort);
-    this.binding = new DaprBinding(this.express, daprUrl, daprPort);
-    this.invoke = new DaprInvoke(this.express, daprUrl, daprPort);
+    this.pubsub = new DaprPubSub(this.express, this.urlDapr);
+    this.state = new DaprState(this.express, this.urlDapr);
+    this.binding = new DaprBinding(this.express, this.urlDapr);
+    this.invoke = new DaprInvoke(this.express, this.urlDapr);
   }
 
   async initialize() {

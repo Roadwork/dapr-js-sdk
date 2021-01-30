@@ -3,28 +3,18 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import TypeDaprPubSub from './pubsub.type';
-import HttpStatusCode from '../enum/HttpStatusCode.enum';
 
 export default class DaprPubSub {
-  url: string;
-  urlDapr: string;
-  port: number;
+  daprUrl: string;
   express: express.Application;
 
-  constructor(express: express.Application, daprUrl: string, daprPort: number) {
-    this.url = daprUrl || '127.0.0.1';
-    this.port = daprPort || 3500;
+  constructor(express: express.Application, daprUrl: string) {
     this.express = express;
-
-    if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
-      this.url = `http://${this.url}`;
-    }
-
-    this.urlDapr = `${this.url}:${this.port}/v1.0`;
+    this.daprUrl = daprUrl;
   }
 
   async publish(pubSubName: string, topic: string, body: object = {}): Promise<number> {
-    const res = await fetch(`${this.urlDapr}/publish/${pubSubName}/${topic}`, {
+    const res = await fetch(`${this.daprUrl}/publish/${pubSubName}/${topic}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
