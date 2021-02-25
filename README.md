@@ -31,5 +31,5 @@ client.binding.receive("binding-name", bindingReceive.bind(this))
 await client.binding.send("binding-name", { hello: "world" });
 
 // Invoke
-await client.invoke("app-id", "method", { hello: "world" });
+await client.invoker.invoke("app-id", "method", { hello: "world" });
 ```

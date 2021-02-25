@@ -46,7 +46,6 @@ export function hookAfterEach() {
 }
 
 export function setupHooks() {
-
   beforeEach(async () => {
     await hookBeforeEach();
   });

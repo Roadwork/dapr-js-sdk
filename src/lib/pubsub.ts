@@ -36,12 +36,12 @@ export default class DaprPubSub {
         {
           pubsubname: pubSubName,
           topic,
-          route: `route-${topic}`,
+          route: `route-${pubSubName}-${topic}`,
         },
       ]);
     });
 
-    this.express.post(`/route-${topic}`, async (req, res) => {
+    this.express.post(`/route-${pubSubName}-${topic}`, async (req, res) => {
       console.log(`[Dapr API][PubSub][route-${topic}] Handling incoming message`);
 
       // Process our callback

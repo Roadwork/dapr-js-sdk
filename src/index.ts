@@ -2,7 +2,7 @@ import express from 'express';
 import DaprBinding from './lib/binding';
 import DaprPubSub from './lib/pubsub';
 import DaprState from './lib/state';
-import DaprInvoke from './lib/invoke';
+import DaprInvoker from './lib/invoker';
 
 export default class Dapr {
   url: string;
@@ -12,7 +12,7 @@ export default class Dapr {
   pubsub: DaprPubSub;
   state: DaprState;
   binding: DaprBinding;
-  invoke: DaprInvoke;
+  invoker: DaprInvoker;
   express: express.Application;
 
   constructor(daprUrl: string, daprPort: number, daprAppPort?: number) {
@@ -32,7 +32,7 @@ export default class Dapr {
     this.pubsub = new DaprPubSub(this.express, this.urlDapr);
     this.state = new DaprState(this.express, this.urlDapr);
     this.binding = new DaprBinding(this.express, this.urlDapr);
-    this.invoke = new DaprInvoke(this.express, this.urlDapr);
+    this.invoker = new DaprInvoker(this.express, this.urlDapr);
   }
 
   async initialize() {
