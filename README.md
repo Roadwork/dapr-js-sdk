@@ -24,6 +24,8 @@ const keys = [{ "key": "value" }, { "key2": "value2" }]; // IKeyValuePair[]
 await client.state.save("store-name", );
 await client.state.get("store-name", "key");
 await client.state.delete("store-name", "key");
+await client.state.get_bulk();
+await client.state.get_transactions()
 
 // Binding
 const bindingReceive = (data: any) => { console.log(data); }
@@ -32,4 +34,7 @@ await client.binding.send("binding-name", { hello: "world" });
 
 // Invoke
 await client.invoker.invoke("app-id", "method", { hello: "world" });
+
+// Secrets
+// Actors
 ```

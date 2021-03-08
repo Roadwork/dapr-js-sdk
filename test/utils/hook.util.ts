@@ -9,7 +9,7 @@ interface HookState {
 }
 
 let state: HookState = {
-  server: express(), // we will reset later
+  server: createExpress(), // we will reset later
   serverPort: 8709,
   serverUrl: `http://127.0.0.1:8709`
 }

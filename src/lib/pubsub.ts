@@ -2,7 +2,7 @@
 
 import fetch from 'node-fetch';
 import express from 'express';
-import TypeDaprPubSub from './pubsub.type';
+import TypeDaprPubSub from '../types/IDaprInvoker';
 
 export default class DaprPubSub {
   daprUrl: string;

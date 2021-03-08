@@ -3,11 +3,8 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import ResponseUtil from '../utils/Response.util';
-
-interface IKeyValuePair {
-  key: string;
-  value: string;
-}
+import { IKeyValuePair } from '../types/IKeyValuePair';
+import { IOperation } from '../types/IOperation';
 
 export default class DaprState {
   daprUrl: string;
@@ -31,11 +28,38 @@ export default class DaprState {
     return ResponseUtil.handleResponse(res);
   }
 
+  async get_bulk(storeName: string, keys: Array<string>, parallelism: number = 10, metadata: string = ""): Promise<object> {
+    const res = await fetch(`${this.daprUrl}/state/${storeName}/bulk${metadata ? `?${metadata}` : ""}`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        keys,
+        parallelism // the number of parallel operations executed on the state store for a get operation
+      })
+    });
+
+    return ResponseUtil.handleResponse(res);
+  }
+
   async delete(storeName: string, key: string): Promise<number> {
     const req = await fetch(`${this.daprUrl}/state/${storeName}/${key}`, {
       method: 'DELETE',
     });
 
     return req.status;
+  }
+
+  async transaction(storeName: string, operations: Array<IOperation> = [], metadata = []): Promise<object> {
+    const res = await fetch(`${this.daprUrl}/state/${storeName}/bulk`, {
+      method: 'POST',
+      body: JSON.stringify({
+        operations,
+        metadata
+      })
+    });
+
+    return ResponseUtil.handleResponse(res);
   }
 }
