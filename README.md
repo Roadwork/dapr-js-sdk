@@ -50,5 +50,18 @@ await client.secret.get("secret-store-name", "key");
 await client.secret.getBulk("secret-store-name", [ "key1", "key2" ]);
 
 // Actors
-// @todo
+await client.actor.invoke("GET", "actor-type", "actor-id", "method");
+await client.actor.stateTransaction("actor-type", "actor-id", [{
+  operation: "upsert",
+  request: {
+    key: "key1",
+    value: "myData"
+  }
+}])
+await client.actor.stateGet("actor-type", "actor-id", "key");
+await client.actor.reminderCreate("actor-type", "actor-id", "name");
+await client.actor.reminderGet("actor-type", "actor-id", "name");
+await client.actor.reminderDelete("actor-type", "actor-id", "name");
+await client.actor.timerCreate("actor-type", "actor-id", "name");
+await client.actor.timerDelete("actor-type", "actor-id", "name");
 ```
