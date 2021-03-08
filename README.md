@@ -24,8 +24,18 @@ const keys = [{ "key": "value" }, { "key2": "value2" }]; // IKeyValuePair[]
 await client.state.save("store-name", );
 await client.state.get("store-name", "key");
 await client.state.delete("store-name", "key");
-await client.state.get_bulk();
-await client.state.get_transactions()
+await client.state.getBulk("store-name", [ "key1", "key2" ]);
+
+const stateOperations = [
+  {
+    operation: "upsert",
+    request: {
+      key: "key1",
+      value: "myData"
+    }
+  }
+]
+await client.state.transaction("store-name", stateOperations)
 
 // Binding
 const bindingReceive = (data: any) => { console.log(data); }
@@ -36,5 +46,9 @@ await client.binding.send("binding-name", { hello: "world" });
 await client.invoker.invoke("app-id", "method", { hello: "world" });
 
 // Secrets
+await client.secret.get("secret-store-name", "key");
+await client.secret.getBulk("secret-store-name", [ "key1", "key2" ]);
+
 // Actors
+// @todo
 ```

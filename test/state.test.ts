@@ -36,15 +36,15 @@ describe('state', () => {
     })
   });
 
-  describe('state/get_bulk', () => {
-    it('should translate to a state get_bulk call', async () => {
+  describe('state/getBulk', () => {
+    it('should translate to a state getBulk call', async () => {
       const state = getState();
 
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.post(`/state/my-store/bulk`, mock); // dapr will translate this to /my-method, they however test this already
 
       const client = new DaprState(state.server, state.serverUrl);
-      const res = await client.get_bulk("my-store", [ "key1", "key2", "key3" ], 10);
+      const res = await client.getBulk("my-store", [ "key1", "key2", "key3" ], 10);
 
       expect(res).toEqual({ isSuccess: true, body: { keys: [ "key1", "key2", "key3" ], parallelism: 10 }, query: {} });
     })

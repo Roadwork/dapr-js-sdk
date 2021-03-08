@@ -32,7 +32,7 @@ export default class DaprState {
     return ResponseUtil.handleResponse(res);
   }
 
-  async get_bulk(storeName: string, keys: Array<string>, parallelism: number = 10, metadata: string = ""): Promise<object> {
+  async getBulk(storeName: string, keys: Array<string>, parallelism: number = 10, metadata: string = ""): Promise<object> {
     const res = await fetch(`${this.daprUrl}/state/${storeName}/bulk${metadata ? `?${metadata}` : ""}`, {
       method: 'POST',
       headers: {
