@@ -1,4 +1,4 @@
-import { IRequest } from "./IRequest";
+import { IRequest } from "./Request.type";
 
 export type IOperation = {
   operation: string;

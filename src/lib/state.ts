@@ -3,8 +3,9 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import ResponseUtil from '../utils/Response.util';
-import { IKeyValuePair } from '../types/IKeyValuePair';
-import { IOperation } from '../types/IOperation';
+import { IKeyValuePair } from '../types/KeyValuePair.type';
+import { IOperation } from '../types/Operation.type';
+import { IRequestMetadata } from '../types/RequestMetadata.type';
 
 export default class DaprState {
   daprUrl: string;
@@ -18,6 +19,9 @@ export default class DaprState {
   async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<object> {
     const res = await fetch(`${this.daprUrl}/state/${storeName}`, {
       method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(stateObjects),
     });
     return ResponseUtil.handleResponse(res);
@@ -51,9 +55,12 @@ export default class DaprState {
     return req.status;
   }
 
-  async transaction(storeName: string, operations: Array<IOperation> = [], metadata = []): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/state/${storeName}/bulk`, {
+  async transaction(storeName: string, operations: Array<IOperation> = [], metadata: IRequestMetadata | null = null): Promise<object> {
+    const res = await fetch(`${this.daprUrl}/state/${storeName}/transaction`, {
       method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         operations,
         metadata

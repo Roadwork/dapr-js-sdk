@@ -63,4 +63,57 @@ describe('state', () => {
       expect(res).toEqual(200);
     })
   });
+
+  describe('state/transaction', () => {
+    it('should translate to a state transaction call', async () => {
+      const state = getState();
+
+      const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
+      state.server.post(`/state/my-store/transaction`, mock); // dapr will translate this to /my-method, they however test this already
+
+      const client = new DaprState(state.server, state.serverUrl);
+      const res = await client.transaction("my-store", [
+        {
+          operation: "upsert",
+          request: {
+            key: "key1",
+            value: "myData"
+          }
+        },
+        {
+          operation: "delete",
+          request: {
+            key: "key2"
+          }
+        },
+      ], {
+        partitionKey: "planet"
+      });
+
+      expect(res).toEqual({
+        isSuccess: true,
+        body: {
+          operations: [
+            {
+              operation: "upsert",
+              request: {
+                key: "key1",
+                value: "myData"
+              }
+            },
+            {
+              operation: "delete",
+              request: {
+                key: "key2"
+              }
+            },
+          ],
+          metadata: {
+            partitionKey: "planet"
+          }
+        },
+        query: {}
+      });
+    })
+  });
 });
