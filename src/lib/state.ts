@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 import express from 'express';
 import ResponseUtil from '../utils/Response.util';
 import { IKeyValuePair } from '../types/KeyValuePair.type';
-import { IOperation } from '../types/Operation.type';
+import { OperationType } from '../types/Operation.type';
 import { IRequestMetadata } from '../types/RequestMetadata.type';
 
 export default class DaprState {
@@ -55,7 +55,7 @@ export default class DaprState {
     return req.status;
   }
 
-  async transaction(storeName: string, operations: Array<IOperation> = [], metadata: IRequestMetadata | null = null): Promise<object> {
+  async transaction(storeName: string, operations: Array<OperationType> = [], metadata: IRequestMetadata | null = null): Promise<object> {
     const res = await fetch(`${this.daprUrl}/state/${storeName}/transaction`, {
       method: 'POST',
       headers: {
