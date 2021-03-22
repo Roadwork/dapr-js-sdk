@@ -45,6 +45,9 @@ await client.binding.send("binding-name", { hello: "world" });
 // Invoke
 await client.invoker.invoke("app-id", "method", { hello: "world" });
 
+const invokerListen = (req: express.Request, res: express.Response) => { console.log(data); }
+client.invoker.listen("method", invokerListen.bind(this), options)
+
 // Secrets
 await client.secret.get("secret-store-name", "key");
 await client.secret.getBulk("secret-store-name", [ "key1", "key2" ]);
@@ -65,3 +68,34 @@ await client.actor.reminderDelete("actor-type", "actor-id", "name");
 await client.actor.timerCreate("actor-type", "actor-id", "name");
 await client.actor.timerDelete("actor-type", "actor-id", "name");
 ```
+
+## Reference
+
+### Service Invocation
+
+The service invocation methods are created as a warpper on the [Dapr Service Invocation API](https://docs.dapr.io/reference/api/service_invocation_api/).
+
+#### Invoking a method
+
+```javascript
+await client.invoker.invoke("app-id", "method", { hello: "world" });
+```
+
+#### Listening to a method call
+
+On top of the invoking, this SDK also implements a trivial way to listen to app invocations. Instead of creating your own Express server, you can simply run the following commands which will listen to calls coming in on the provided endpoint.
+
+```javascript
+const invokerListen = (req: express.Request, res: express.Response) => { console.log(data); }
+client.invoker.listen("method", invokerListen.bind(this), options)
+```
+
+### State Management
+
+### Pub/Sub
+
+### Bindings
+
+### Actors
+
+### Secrets
