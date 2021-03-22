@@ -10,9 +10,10 @@ Initialize through the following:
 
 ```javascript
 import Dapr from "@roadwork/dapr-js-sdk";
-import express from "express";
+import express from "express"; // starts the dapr listener on the app port
 
-const client = new Dapr();
+const client = new Dapr("<dapr_url>", "<dapr_port>");
+await client.initialize();
 
 // Pub / Sub
 const bindingReceive = (data: any) => { console.log(data); }
