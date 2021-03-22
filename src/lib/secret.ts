@@ -16,7 +16,7 @@ export default class DaprSecret {
     return ResponseUtil.handleResponse(res);
   }
 
-  async getBulk(secretStoreName: string, keys: Array<string>, parallelism: number = 10, metadata: string = ""): Promise<object> {
+  async getBulk(secretStoreName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
     const res = await fetch(`${this.daprUrl}/secrets/${secretStoreName}/bulk${metadata ? `?${metadata}` : ""}`, {
       method: 'POST',
       headers: {

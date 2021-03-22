@@ -18,7 +18,7 @@ export default class DaprActor {
   }
 
   async invoke(method: "GET" | "POST" | "PUT" | "DELETE" = "POST", actorType: string, actorId: string, methodName: string, body?: object): Promise<object> {
-    let fetchOptions: InvokeFetchOptions = {
+    const fetchOptions: InvokeFetchOptions = {
       method,
       headers: {
         "Content-Type": "application/json"
@@ -34,7 +34,7 @@ export default class DaprActor {
     return ResponseUtil.handleResponse(res);
   }
 
-  async stateTransaction(actorType: string, actorId: string, operations: Array<OperationType>): Promise<object> {
+  async stateTransaction(actorType: string, actorId: string, operations: OperationType[]): Promise<object> {
     const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/state`, {
       method: 'POST',
       headers: {

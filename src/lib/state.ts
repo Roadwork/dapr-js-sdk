@@ -32,7 +32,7 @@ export default class DaprState {
     return ResponseUtil.handleResponse(res);
   }
 
-  async getBulk(storeName: string, keys: Array<string>, parallelism: number = 10, metadata: string = ""): Promise<object> {
+  async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
     const res = await fetch(`${this.daprUrl}/state/${storeName}/bulk${metadata ? `?${metadata}` : ""}`, {
       method: 'POST',
       headers: {
@@ -55,7 +55,7 @@ export default class DaprState {
     return req.status;
   }
 
-  async transaction(storeName: string, operations: Array<OperationType> = [], metadata: IRequestMetadata | null = null): Promise<object> {
+  async transaction(storeName: string, operations: OperationType[] = [], metadata: IRequestMetadata | null = null): Promise<object> {
     const res = await fetch(`${this.daprUrl}/state/${storeName}/transaction`, {
       method: 'POST',
       headers: {
