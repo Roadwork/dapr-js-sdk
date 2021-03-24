@@ -62,16 +62,28 @@ describe('invoker', () => {
   });
 
   describe('invoker/invoke', () => {
-    it('should be able to receive events', async () => {
+    it('should be able to invoke a method - defaults to GET', async () => {
       const state = getState();
 
-      const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true }))
+      const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body }))
+      state.server.get(`/invoke/my-app/method/my-method`, mock); // dapr will translate this to /my-method, they however test this already
+
+      const client = new DaprInvoker(state.serverUrl);
+
+      const res = await client.invoke("my-app", "my-method");
+      expect(res).toEqual({ isSuccess: true, body: {} });
+    });
+
+    it('should be able to invoke a method with POST', async () => {
+      const state = getState();
+
+      const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body }))
       state.server.post(`/invoke/my-app/method/my-method`, mock); // dapr will translate this to /my-method, they however test this already
 
       const client = new DaprInvoker(state.serverUrl);
 
-      const res = await client.invoke("my-app", "my-method", { hello: "world" });
-      expect(res).toEqual({ isSuccess: true });
-    })
+      const res = await client.invoke("my-app", "my-method", InvokerListenOptionsMethod.POST, { hello: "world" });
+      expect(res).toEqual({ isSuccess: true, body: { hello: "world" } });
+    });
   });
 });

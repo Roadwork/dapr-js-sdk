@@ -27,15 +27,24 @@ export default class DaprInvoker {
     });
   }
 
-  async invoke(appId: string, methodName: string, data: object = {}) {
-    const res = await fetch(`${this.daprUrl}/invoke/${appId}/method/${methodName}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    
+  async invoke(appId: string, methodName: string, method: InvokerListenOptionsMethod = InvokerListenOptionsMethod.GET, data: object = {}) {
+    let fetchOptions = {
+      method
+    };
+
+    if (method != InvokerListenOptionsMethod.GET) {
+      // @ts-ignore
+      fetchOptions['headers'] = {
+        'Content-Type': 'application/json'
+      };
+    }
+
+    if (method != InvokerListenOptionsMethod.GET && data != {}) {
+      // @ts-ignore
+      fetchOptions['body'] = JSON.stringify(data);
+    }
+
+    const res = await fetch(`${this.daprUrl}/invoke/${appId}/method/${methodName}`, fetchOptions);
     return ResponseUtil.handleResponse(res);
   }
 }
