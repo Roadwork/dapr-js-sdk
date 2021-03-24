@@ -19,6 +19,7 @@ export default class DaprInvoker {
 
     const expressMethod: InvokerListenOptionsMethod = options?.method?.toLowerCase() as InvokerListenOptionsMethod || InvokerListenOptionsMethod.GET;
 
+    console.log(`Listening on ${expressMethod.toUpperCase()} /${methodName}`);
     this.express[expressMethod](`/${methodName}`, async (req: express.Request, res: express.Response) => {
       await cb(req, res);
 

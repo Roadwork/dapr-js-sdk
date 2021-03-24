@@ -1,3 +1,5 @@
+import http from 'http';
+import { AddressInfo } from 'net';
 import express from 'express';
 import DaprBinding from './lib/binding';
 import DaprPubSub from './lib/pubsub';
@@ -42,6 +44,11 @@ export default class Dapr {
   }
 
   async initialize() {
-    return new Promise<void>((resolve, reject) => this.express.listen(this.daprAppPort, resolve));
+    const expressListener = (await new Promise((resolve, reject) => this.express.listen(this.daprAppPort, () => resolve))) as http.Server;
+
+    const expressListenerAddress = expressListener.address() as AddressInfo;
+    console.log(`Listening on ${expressListenerAddress.port}`);
+
+    return expressListener;
   }
 }
