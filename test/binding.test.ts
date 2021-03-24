@@ -3,6 +3,7 @@ import express from "express";
 import HttpStatusCode from '../src/enum/HttpStatusCode.enum';
 import DaprBinding from '../src/lib/binding';
 import { setupHooks, getState } from './utils/hook.util';
+import WebServerSingleton from '../src/singleton/WebServerSingleton';
 
 describe('binding', () => {
   setupHooks();
@@ -11,12 +12,13 @@ describe('binding', () => {
     it('should be able to receive events', async () => {
       const state = getState();
 
-      const clientBinding = new DaprBinding(state.server, "http://my-dapr-url/v1.0");
+      const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => {})
       clientBinding.receive("binding-name", mockReceive);
 
-      const res = await fetch(`${state.serverUrl}/binding-name`, {
+      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
+      const res = await fetch(`${appUrl}/binding-name`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -32,12 +34,13 @@ describe('binding', () => {
     it('should be able to receive events with correct data', async () => {
       const state = getState();
 
-      const clientBinding = new DaprBinding(state.server, "http://my-dapr-url/v1.0");
+      const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => {})
       clientBinding.receive("binding-name", mockReceive);
 
-      const res = await fetch(`${state.serverUrl}/binding-name`, {
+      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
+      const res = await fetch(`${appUrl}/binding-name`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -47,6 +50,7 @@ describe('binding', () => {
         })
       });
 
+      console.log(mockReceive.mock.calls);
       // Expect first argument of first call to equal
       expect(mockReceive.mock.calls[0][0]).toEqual({ hello: "world" });
     })
@@ -54,12 +58,13 @@ describe('binding', () => {
     it('should receive the HttpState OK when successful processing', async () => {
       const state = getState();
 
-      const clientBinding = new DaprBinding(state.server, "http://my-dapr-url/v1.0");
+      const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => {})
       clientBinding.receive("binding-name", mockReceive);
 
-      const res = await fetch(`${state.serverUrl}/binding-name`, {
+      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
+      const res = await fetch(`${appUrl}/binding-name`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -75,12 +80,13 @@ describe('binding', () => {
     it('should receive the HttpState INTERNAL_SERVER_ERROR when something happened in the callback', async () => {
       const state = getState();
 
-      const clientBinding = new DaprBinding(state.server, "http://my-dapr-url/v1.0");
+      const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => { throw new Error('SOME_RANDOM_ERROR') })
       clientBinding.receive("binding-name", mockReceive);
 
-      const res = await fetch(`${state.serverUrl}/binding-name`, {
+      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
+      const res = await fetch(`${appUrl}/binding-name`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -105,7 +111,7 @@ describe('binding', () => {
     it('should be able to send data', async () => {
       const state = getState();
 
-      const clientBinding = new DaprBinding(state.server, state.serverUrl);
+      const clientBinding = new DaprBinding(state.serverUrl);
 
       const mockSend = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true }))
       state.server.post(`/bindings/my-binding-name`, mockSend);

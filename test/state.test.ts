@@ -15,7 +15,7 @@ describe('state', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true }))
       state.server.post(`/state/my-store`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprState(state.server, state.serverUrl);
+      const client = new DaprState(state.serverUrl);
       const res = await client.save("my-store", [{ key: "my-key", value: "my-value" }]);
 
       expect(res).toEqual({ isSuccess: true });
@@ -29,7 +29,7 @@ describe('state', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true }))
       state.server.get(`/state/my-store/my-key`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprState(state.server, state.serverUrl);
+      const client = new DaprState(state.serverUrl);
       const res = await client.get("my-store", "my-key");
 
       expect(res).toEqual({ isSuccess: true });
@@ -43,7 +43,7 @@ describe('state', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.post(`/state/my-store/bulk`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprState(state.server, state.serverUrl);
+      const client = new DaprState(state.serverUrl);
       const res = await client.getBulk("my-store", [ "key1", "key2", "key3" ], 10);
 
       expect(res).toEqual({ isSuccess: true, body: { keys: [ "key1", "key2", "key3" ], parallelism: 10 }, query: {} });
@@ -57,7 +57,7 @@ describe('state', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true }))
       state.server.delete(`/state/my-store/my-key`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprState(state.server, state.serverUrl);
+      const client = new DaprState(state.serverUrl);
       const res = await client.delete("my-store", "my-key");
 
       expect(res).toEqual(200);
@@ -71,7 +71,7 @@ describe('state', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.post(`/state/my-store/transaction`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprState(state.server, state.serverUrl);
+      const client = new DaprState(state.serverUrl);
       const res = await client.transaction("my-store", [
         {
           operation: "upsert",

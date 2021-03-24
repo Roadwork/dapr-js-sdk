@@ -2,6 +2,8 @@
 
 This is an unofficial [Dapr](https://dapr.io) Node.js SDK that allows interfacing with Dapr applications. The release is to demonstrate the possible way of structuring the SDK for community use.
 
+It will spin up an internal web server for receive actions (e.g. Method Invocation receiving, Subscribe actions, ...) which are being published by the port described through the environment variable `DAPR_APP_PORT` or a random allocated port if this is not set.
+
 > **Note:** This library is not ready for production yet
 
 ## Usage
@@ -40,14 +42,14 @@ await client.state.transaction("store-name", stateOperations)
 
 // Binding
 const bindingReceive = (data: any) => { console.log(data); }
-client.binding.receive("binding-name", bindingReceive.bind(this))
+await client.binding.receive("binding-name", bindingReceive.bind(this))
 await client.binding.send("binding-name", { hello: "world" });
 
 // Invoke
 await client.invoker.invoke("app-id", "method", { hello: "world" });
 
 const invokerListen = (req: express.Request, res: express.Response) => { console.log(data); }
-client.invoker.listen("method", invokerListen.bind(this), options)
+await client.invoker.listen("method", invokerListen.bind(this), options)
 
 // Secrets
 await client.secret.get("secret-store-name", "key");
@@ -88,7 +90,7 @@ On top of the invoking, this SDK also implements a trivial way to listen to app 
 
 ```javascript
 const invokerListen = (req: express.Request, res: express.Response) => { console.log(data); }
-client.invoker.listen("method", invokerListen.bind(this), options)
+await client.invoker.listen("method", invokerListen.bind(this), options)
 ```
 
 ### State Management

@@ -19,7 +19,6 @@ export default class Dapr {
   invoker: DaprInvoker;
   secret: DaprSecret;
   actor: DaprActor;
-  express: express.Application;
 
   constructor(daprUrl: string, daprPort: number, daprAppPort?: number) {
     this.url = daprUrl || '127.0.0.1';
@@ -32,23 +31,11 @@ export default class Dapr {
 
     this.urlDapr = `${this.url}:${this.daprPort}/v1.0`;
 
-    this.express = express();
-    this.express.use(express.json()); // json middleware parser
-
-    this.pubsub = new DaprPubSub(this.express, this.urlDapr);
-    this.state = new DaprState(this.express, this.urlDapr);
-    this.binding = new DaprBinding(this.express, this.urlDapr);
-    this.invoker = new DaprInvoker(this.express, this.urlDapr);
-    this.secret = new DaprSecret(this.express, this.urlDapr);
-    this.actor = new DaprActor(this.express, this.urlDapr);
-  }
-
-  async initialize() {
-    const expressListener = (await new Promise((resolve, reject) => this.express.listen(this.daprAppPort, () => resolve))) as http.Server;
-
-    const expressListenerAddress = expressListener.address() as AddressInfo;
-    console.log(`Listening on ${expressListenerAddress.port}`);
-
-    return expressListener;
+    this.pubsub = new DaprPubSub(this.urlDapr);
+    this.state = new DaprState(this.urlDapr);
+    this.binding = new DaprBinding(this.urlDapr);
+    this.invoker = new DaprInvoker(this.urlDapr);
+    this.secret = new DaprSecret(this.urlDapr);
+    this.actor = new DaprActor(this.urlDapr);
   }
 }

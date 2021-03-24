@@ -1,5 +1,4 @@
 import fetch from 'node-fetch';
-import express from 'express';
 import ResponseUtil from '../utils/Response.util';
 import { InvokeFetchOptions } from '../types/InvokeFetchOptions';
 import { OperationType } from '../types/Operation.type';
@@ -10,11 +9,9 @@ import { ResActorDeactivateDto } from '../dto/ResActorDeactivate.dto';
 // https://docs.dapr.io/reference/api/actors_api/
 export default class DaprActor {
   daprUrl: string;
-  express: express.Application;
 
-  constructor(express: express.Application, daprUrl: string) {
+  constructor(daprUrl: string) {
     this.daprUrl = daprUrl;
-    this.express = express;
   }
 
   async invoke(method: "GET" | "POST" | "PUT" | "DELETE" = "POST", actorType: string, actorId: string, methodName: string, body?: object): Promise<object> {

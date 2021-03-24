@@ -1,14 +1,11 @@
 import fetch from 'node-fetch';
-import express from 'express';
 import ResponseUtil from '../utils/Response.util';
 
 export default class DaprSecret {
   daprUrl: string;
-  express: express.Application;
 
-  constructor(express: express.Application, daprUrl: string) {
+  constructor(daprUrl: string) {
     this.daprUrl = daprUrl;
-    this.express = express;
   }
 
   async get(secretStoreName: string, key: string, metadata: string = ""): Promise<object> {

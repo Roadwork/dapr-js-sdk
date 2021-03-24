@@ -1,15 +1,13 @@
 // https://docs.dapr.io/reference/api/pubsub_api/
 
 import fetch from 'node-fetch';
-import express from 'express';
+import WebServerSingleton from "../singleton/WebServerSingleton";
 import { TypeDaprPubSub } from '../types/DaprPubSub.type';
 
 export default class DaprPubSub {
   daprUrl: string;
-  express: express.Application;
 
-  constructor(express: express.Application, daprUrl: string) {
-    this.express = express;
+  constructor(daprUrl: string) {
     this.daprUrl = daprUrl;
   }
 
@@ -26,10 +24,10 @@ export default class DaprPubSub {
     return res.status;
   }
 
-  subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {
-    this.express.use(express.json({ type: 'application/*+json' }));
+  async subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {
+    const server = await WebServerSingleton.getInstance().getServer();
 
-    this.express.get('/dapr/subscribe', (req, res) => {
+    server.get('/dapr/subscribe', (req, res) => {
       console.log(`[Dapr API][PubSub][route-${topic}] Registering route for queue ${pubSubName}`);
 
       res.json([
@@ -41,7 +39,7 @@ export default class DaprPubSub {
       ]);
     });
 
-    this.express.post(`/route-${pubSubName}-${topic}`, async (req, res) => {
+    server.post(`/route-${pubSubName}-${topic}`, async (req, res) => {
       console.log(`[Dapr API][PubSub][route-${topic}] Handling incoming message`);
 
       // Process our callback

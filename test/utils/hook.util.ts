@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import WebServerSingleton from '../../src/singleton/WebServerSingleton';
 
 interface HookState {
   server: express.Application;
@@ -20,17 +21,17 @@ function createExpress(): express.Application {
   return app;
 }
 
-export function hookBeforeEach() {
-  return new Promise<void>((resolve, reject) => {
+export async function hookBeforeEach() {
+  await (new Promise<void>(async (resolve, reject) => {
     state.server = createExpress();
-    state.server.use(express.json());
-
     state.serverListener = state.server.listen(state.serverPort, resolve);
-  });
+  }))
+
+  // await (await WebServerSingleton.getInstance()).initialize();
 }
 
-export function hookAfterEach() {
-  return new Promise<void>((resolve, reject) => {
+export async function hookAfterEach() {
+  await (new Promise<void>(async (resolve, reject) => {
     if (!state.serverListener) {
       throw new Error('Server was not initialized!');
     }
@@ -42,7 +43,9 @@ export function hookAfterEach() {
 
       return resolve();
     })
-  })
+  }))
+
+  await (await WebServerSingleton.getInstance()).close();
 }
 
 export function setupHooks() {

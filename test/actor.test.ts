@@ -15,7 +15,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.post(`/actors/my-actor-type/my-actor-id/method/my-method`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
 
       const res = await client.invoke("POST", "my-actor-type", "my-actor-id", "my-method", { hello: "world" });
       expect(res).toEqual({ isSuccess: true, body: { hello: "world" }, query: {} });
@@ -29,7 +29,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.post(`/actors/my-actor-type/my-actor-id/state`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
       const res = await client.stateTransaction("my-actor-type", "my-actor-id", [
         {
           operation: "upsert",
@@ -75,7 +75,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.get(`/actors/my-actor-type/my-actor-id/state/my-key`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
       const res = await client.stateGet("my-actor-type", "my-actor-id", "my-key");
 
       expect(res).toEqual({ isSuccess: true, body: {}, query: {} });
@@ -89,7 +89,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.post(`/actors/my-actor-type/my-actor-id/reminders/my-reminder`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
       const res = await client.reminderCreate("my-actor-type", "my-actor-id", "my-reminder", {
         dueTime: "0h0m3s0ms",
         period: "0h0m7s0ms"
@@ -109,7 +109,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.get(`/actors/my-actor-type/my-actor-id/reminders/my-reminder`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
       const res = await client.reminderGet("my-actor-type", "my-actor-id", "my-reminder");
 
       expect(res).toEqual({ isSuccess: true, body: {}, query: {} });
@@ -123,7 +123,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.delete(`/actors/my-actor-type/my-actor-id/reminders/my-reminder`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
       const res = await client.reminderDelete("my-actor-type", "my-actor-id", "my-reminder");
 
       expect(res).toEqual(200);
@@ -137,7 +137,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.post(`/actors/my-actor-type/my-actor-id/timers/my-timer`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
       const res = await client.timerCreate("my-actor-type", "my-actor-id", "my-timer", {
         data: "test-data",
         dueTime: "0h0m3s0ms",
@@ -161,7 +161,7 @@ describe('actor', () => {
       const mock = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true, body: req.body, query: req.query }))
       state.server.delete(`/actors/my-actor-type/my-actor-id/timers/my-timer`, mock); // dapr will translate this to /my-method, they however test this already
 
-      const client = new DaprActor(state.server, state.serverUrl);
+      const client = new DaprActor(state.serverUrl);
       const res = await client.timerDelete("my-actor-type", "my-actor-id", "my-timer");
 
       expect(res).toEqual(200);
