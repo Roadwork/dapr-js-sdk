@@ -14,7 +14,7 @@ export enum LoggerLevel {
 
 const LoggerLevelKeys = ['ERROR', 'WARN', 'INFO', 'HTTP', 'VERBOSE', 'DEBUG', 'SILLY', 'TRACE'];
 
-const CURRENT_LOGGER_LEVEL = process.env['LOGGER_LEVEL'] || LoggerLevel.VERBOSE;
+const CURRENT_LOGGER_LEVEL = process.env.LOGGER_LEVEL || LoggerLevel.VERBOSE;
 
 console.log(`CURRENT LOG LEVEL: ${CURRENT_LOGGER_LEVEL}`)
 
