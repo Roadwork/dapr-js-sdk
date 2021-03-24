@@ -28,20 +28,20 @@ export default class DaprInvoker {
   }
 
   async invoke(appId: string, methodName: string, method: InvokerListenOptionsMethod = InvokerListenOptionsMethod.GET, data: object = {}) {
-    let fetchOptions = {
+    const fetchOptions = {
       method
     };
 
-    if (method != InvokerListenOptionsMethod.GET) {
+    if (method !== InvokerListenOptionsMethod.GET) {
       // @ts-ignore
-      fetchOptions['headers'] = {
+      fetchOptions.headers = {
         'Content-Type': 'application/json'
       };
     }
 
-    if (method != InvokerListenOptionsMethod.GET && data != {}) {
+    if (method !== InvokerListenOptionsMethod.GET && data !== {}) {
       // @ts-ignore
-      fetchOptions['body'] = JSON.stringify(data);
+      fetchOptions.body = JSON.stringify(data);
     }
 
     const res = await fetch(`${this.daprUrl}/invoke/${appId}/method/${methodName}`, fetchOptions);
