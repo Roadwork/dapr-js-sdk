@@ -1,10 +1,9 @@
-// https://github.com/dapr/docs/blob/master/reference/api/state_api.md
-
 import fetch from 'node-fetch';
 import HttpStatusCode from '../enum/HttpStatusCode.enum';
 import WebServerSingleton from '../singleton/WebServerSingleton';
 import ResponseUtil from '../utils/Response.util';
 
+// https://docs.dapr.io/reference/api/bindings_api/
 type FunctionDaprInputCallback = (data: object) => Promise<any>;
 export default class DaprBinding {
   daprUrl: string;
@@ -16,10 +15,10 @@ export default class DaprBinding {
   // Receive an input from an external system
   async receive(bindingName: string, cb: FunctionDaprInputCallback) {
     const server = await WebServerSingleton.getInstance().getServer();
+
+    console.log(`[Binding] Listening on /${bindingName}`);
     server.post(`/${bindingName}`, async (req, res) => {
       req.setTimeout(60 * 1000); // amount of seconds to wait for the request CB to finalize
-      
-      console.log(req.body);
       
       try {
         await cb(req?.body); 

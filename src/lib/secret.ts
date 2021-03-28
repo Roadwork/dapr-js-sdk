@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import ResponseUtil from '../utils/Response.util';
 
+// https://docs.dapr.io/reference/api/secrets_api/
 export default class DaprSecret {
   daprUrl: string;
 

@@ -5,6 +5,7 @@ import { InvokerListenOptionsType } from '../types/InvokerListenOptions.type';
 import { InvokerListenOptionsMethod } from '../enum/InvokerListenOptionsMethod.enum';
 import WebServerSingleton from '../singleton/WebServerSingleton';
 
+// https://docs.dapr.io/reference/api/service_invocation_api/
 export default class DaprInvoker {
   daprUrl: string;
 

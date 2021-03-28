@@ -1,11 +1,10 @@
-// https://github.com/dapr/docs/blob/master/reference/api/state_api.md
-
 import fetch from 'node-fetch';
 import ResponseUtil from '../utils/Response.util';
 import { IKeyValuePair } from '../types/KeyValuePair.type';
 import { OperationType } from '../types/Operation.type';
 import { IRequestMetadata } from '../types/RequestMetadata.type';
 
+// https://docs.dapr.io/reference/api/state_api/
 export default class DaprState {
   daprUrl: string;
 

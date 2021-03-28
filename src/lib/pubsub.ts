@@ -1,9 +1,8 @@
-// https://docs.dapr.io/reference/api/pubsub_api/
-
 import fetch from 'node-fetch';
 import WebServerSingleton from "../singleton/WebServerSingleton";
 import { TypeDaprPubSub } from '../types/DaprPubSub.type';
 
+// https://docs.dapr.io/reference/api/pubsub_api/
 export default class DaprPubSub {
   daprUrl: string;
 
