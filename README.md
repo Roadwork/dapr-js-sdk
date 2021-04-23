@@ -8,14 +8,16 @@ It will spin up an internal web server for receive actions (e.g. Method Invocati
 
 ## Usage
 
-Initialize through the following:
+1. Set the environment variable `DAPR_APP_PORT` to equal to the app port
+
+e.g. `DAPR_APP_PORT=4000 dapr run --app-id hello-world --app-port 4000 --dapr-http-port 3500 --components-path ./components/ npm run start:dev`
+
+2. Initialize through the following:
 
 ```javascript
 import Dapr from "@roadwork/dapr-js-sdk";
-import express from "express"; // starts the dapr listener on the app port
 
 const client = new Dapr("<dapr_url>", "<dapr_port>");
-await client.initialize();
 
 // Pub / Sub
 const bindingReceive = (data: any) => { console.log(data); }
@@ -48,8 +50,8 @@ await client.binding.send("binding-name", { hello: "world" });
 // Invoke
 await client.invoker.invoke("app-id", "method", { hello: "world" });
 
-const invokerListen = (req: express.Request, res: express.Response) => { console.log(data); }
-await client.invoker.listen("method", invokerListen.bind(this), options)
+const invokerListen = (req: Req, res: Res) => { console.log(data); }
+await client.invoker.listen("method", invokerListen.bind(this), options);
 
 // Secrets
 await client.secret.get("secret-store-name", "key");
