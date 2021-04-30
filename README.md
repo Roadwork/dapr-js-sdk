@@ -20,7 +20,8 @@ import Dapr, { Req, Res } from "@roadwork/dapr-js-sdk";
 const client = new Dapr("<dapr_url>", "<dapr_port>");
 
 // Pub / Sub
-// Note: must be executed before you are listening on the app port. Else Dapr will not scan the /dapr/subscribe route anymore and the subscriber will not be registered.
+// Note: /dapr/subscribe will be called on the provided DAPR_APP_PORT and --app-port values. 
+// if you are running an extra HTTP server, make sure to utilize a different port. Dapr will not wait till your app started, which is not required since the library takes care of Dapr related functionality internally.
 const bindingReceive = async (data: any) => { console.log(data); }
 client.pubsub.subscribe("pubsub-name", "topic", bindingReceive.bind(this))
 await client.pubsub.publish("pubsub-name", "topic", { hello: "world" });
