@@ -15,12 +15,13 @@ e.g. `DAPR_APP_PORT=4000 dapr run --app-id hello-world --app-port 4000 --dapr-ht
 2. Initialize through the following:
 
 ```javascript
-import Dapr from "@roadwork/dapr-js-sdk";
+import Dapr, { Req, Res } from "@roadwork/dapr-js-sdk";
 
 const client = new Dapr("<dapr_url>", "<dapr_port>");
 
 // Pub / Sub
-const bindingReceive = (data: any) => { console.log(data); }
+// Note: must be executed before you are listening on the app port. Else Dapr will not scan the /dapr/subscribe route anymore and the subscriber will not be registered.
+const bindingReceive = async (data: any) => { console.log(data); }
 client.pubsub.subscribe("pubsub-name", "topic", bindingReceive.bind(this))
 await client.pubsub.publish("pubsub-name", "topic", { hello: "world" });
 
