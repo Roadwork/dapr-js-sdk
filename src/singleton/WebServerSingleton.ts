@@ -74,7 +74,7 @@ export default class WebServerSingleton {
 
     await (new Promise<void>(async (resolve, reject) => {
       this.express = express();
-      // this.express.use(express.json({ type: 'application/*+json' })); // We used this for application/cloudevents+json but empty takes everything as json
+      this.express.use(express.json({ type: 'application/*+json' })); // Required for application/cloudevents+json
       this.express.use(express.json());
       this.expressListener = this.express.listen(appPort, resolve);
     }));
