@@ -39,13 +39,13 @@ export default class DaprPubSub {
     });
 
     server.post(`/route-${pubSubName}-${topic}`, async (req, res) => {
-      console.log(`[Dapr API][PubSub][route-${topic}] Handling incoming message`);
+      // console.log(`[Dapr API][PubSub][route-${topic}] Handling incoming message`);
 
       // Process our callback
       await cb(req, res);
 
       // Let Dapr know that the message was processed correctly
-      console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
+      // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
       return res.json({ success: true });
     });
   }
