@@ -17,7 +17,7 @@ dapr run --app-id hello-world --app-port 4000 --dapr-http-port 3500 --components
 **Library:**
 
 ```javascript
-import Dapr, { Req, Res } from "@roadwork/dapr-js-sdk";
+import Dapr, { Req, Res } from "@roadwork/dapr-js-sdk/http";
 
 // Dapr ConnectionInfo
 // daprUrl: the url to the Dapr Sidecar
