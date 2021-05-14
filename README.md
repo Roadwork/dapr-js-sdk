@@ -2,17 +2,19 @@
 
 This is an unofficial [Dapr](https://dapr.io) Node.js SDK that allows interfacing with Dapr applications. The release is to demonstrate the possible way of structuring the SDK for community use.
 
-It will spin up an internal web server for receive actions (e.g. Method Invocation receiving, Subscribe actions, ...) which are being published by the port described through the environment variable `DAPR_APP_PORT` or a random allocated port if this is not set.
-
 > **Note:** This library is not ready for production yet
 
 ## Usage
 
-1. Set the environment variable `DAPR_APP_PORT` to equal to the app port
+We can utilize the library as shown in the code snippet below. Once implemented, start up your application with the `dapr run` command.
 
-e.g. `DAPR_APP_PORT=4000 dapr run --app-id hello-world --app-port 4000 --dapr-http-port 3500 --components-path ./components/ npm run start:dev`
+**Dapr Run:**
 
-2. Initialize through the following:
+```bash
+dapr run --app-id hello-world --app-port 4000 --dapr-http-port 3500 --components-path ./components/ npm run start:dev
+```
+
+**Library:**
 
 ```javascript
 import Dapr, { Req, Res } from "@roadwork/dapr-js-sdk";
