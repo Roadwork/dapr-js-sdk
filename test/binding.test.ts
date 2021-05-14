@@ -1,23 +1,24 @@
 import fetch from 'node-fetch';
-import express from "express";
+import { IRequest, IResponse } from "../src/lib/WebServer";
 import HttpStatusCode from '../src/enum/HttpStatusCode.enum';
 import DaprBinding from '../src/lib/binding';
 import { setupHooks, getState } from './utils/hook.util';
-import WebServerSingleton from '../src/singleton/WebServerSingleton';
+import WebServerSingleton from '../src/lib/WebServer/WebServerSingleton';
 
 describe('binding', () => {
   setupHooks();
 
   describe('binding/receive', () => {
     it('should be able to receive events', async () => {
-      const state = getState();
+      const state = await getState();
 
       const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => {})
       clientBinding.receive("binding-name", mockReceive);
 
-      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
+      const appUrl = await WebServerSingleton.getServerAddress();
+
       const res = await fetch(`${appUrl}/binding-name`, {
         method: 'POST',
         headers: {
@@ -32,14 +33,15 @@ describe('binding', () => {
     })
 
     it('should be able to receive events with correct data', async () => {
-      const state = getState();
+      const state = await getState();
 
       const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => {})
       clientBinding.receive("binding-name", mockReceive);
 
-      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
+      const appUrl = await WebServerSingleton.getServerAddress();
+
       const res = await fetch(`${appUrl}/binding-name`, {
         method: 'POST',
         headers: {
@@ -50,21 +52,19 @@ describe('binding', () => {
         })
       });
 
-      console.log(mockReceive.mock.calls);
       // Expect first argument of first call to equal
       expect(mockReceive.mock.calls[0][0]).toEqual({ hello: "world" });
     })
 
     it('should receive the HttpState OK when successful processing', async () => {
-      const state = getState();
+      const state = await getState();
 
       const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => {})
       clientBinding.receive("binding-name", mockReceive);
 
-      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
-      const res = await fetch(`${appUrl}/binding-name`, {
+      const res = await fetch(`${state.serverAddress}/binding-name`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -78,15 +78,14 @@ describe('binding', () => {
     })
 
     it('should receive the HttpState INTERNAL_SERVER_ERROR when something happened in the callback', async () => {
-      const state = getState();
+      const state = await getState();
 
       const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
       const mockReceive = jest.fn(async (data: object) => { throw new Error('SOME_RANDOM_ERROR') })
       clientBinding.receive("binding-name", mockReceive);
 
-      const appUrl = await WebServerSingleton.getInstance().getServerListenerUrl();
-      const res = await fetch(`${appUrl}/binding-name`, {
+      const res = await fetch(`${state.serverAddress}/binding-name`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -109,11 +108,11 @@ describe('binding', () => {
 
   describe('binding/send', () => {
     it('should be able to send data', async () => {
-      const state = getState();
+      const state = await getState();
 
-      const clientBinding = new DaprBinding(state.serverUrl);
+      const clientBinding = new DaprBinding(state.serverAddress);
 
-      const mockSend = jest.fn(async (req: express.Request, res: express.Response) => res.status(HttpStatusCode.OK).send({ isSuccess: true }))
+      const mockSend = jest.fn(async (req: IRequest, res: IResponse) => res.send({ isSuccess: true }))
       state.server.post(`/bindings/my-binding-name`, mockSend);
 
       const res = await clientBinding.send("my-binding-name", { hello: "world" }, { my: "key" });

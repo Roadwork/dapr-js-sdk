@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import WebServerSingleton from "../singleton/WebServerSingleton";
+import WebServerSingleton from "./WebServer/WebServerSingleton";
 import { TypeDaprPubSub } from '../types/DaprPubSub.type';
 
 // https://docs.dapr.io/reference/api/pubsub_api/
@@ -24,12 +24,12 @@ export default class DaprPubSub {
   }
 
   async subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {
-    const server = await WebServerSingleton.getInstance().getServer();
+    const server = await WebServerSingleton.getServer();
 
     server.get('/dapr/subscribe', (req, res) => {
       console.log(`[Dapr API][PubSub][route-${topic}] Registering route for queue ${pubSubName}`);
 
-      res.json([
+      res.send([
         {
           pubsubname: pubSubName,
           topic,
@@ -46,7 +46,7 @@ export default class DaprPubSub {
 
       // Let Dapr know that the message was processed correctly
       // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
-      return res.json({ success: true });
+      return res.send({ success: true });
     });
   }
 }

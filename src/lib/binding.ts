@@ -1,10 +1,11 @@
 import fetch from 'node-fetch';
 import HttpStatusCode from '../enum/HttpStatusCode.enum';
-import WebServerSingleton from '../singleton/WebServerSingleton';
+import WebServerSingleton from './WebServer/WebServerSingleton';
 import ResponseUtil from '../utils/Response.util';
 
 // https://docs.dapr.io/reference/api/bindings_api/
-type FunctionDaprInputCallback = (data: object) => Promise<any>;
+type FunctionDaprInputCallback = (data: any) => Promise<any>;
+
 export default class DaprBinding {
   daprUrl: string;
 
@@ -14,25 +15,28 @@ export default class DaprBinding {
 
   // Receive an input from an external system
   async receive(bindingName: string, cb: FunctionDaprInputCallback) {
-    const server = await WebServerSingleton.getInstance().getServer();
+    const server = await WebServerSingleton.getServer();
 
     console.log(`[Binding] Listening on /${bindingName}`);
     server.post(`/${bindingName}`, async (req, res) => {
       req.setTimeout(60 * 1000); // amount of seconds to wait for the request CB to finalize
-      
+
       try {
-        await cb(req?.body); 
+        await cb(req?.body);
+
+        // we send the processing status after we are done processing
+        // note: if the callback takes longer than the expected wait time in the queue, it might be that this never gets called
+        // @todo: can we do this cleaner without sending the response directly?
+        res.statusCode = HttpStatusCode.OK;
+        return res.end();
       } catch (e) {
-        return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send(JSON.stringify({
+        res.statusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
+
+        return res.end(JSON.stringify({
           error: "COULD_NOT_PROCESS_CALLBACK",
           error_msg: `Something happened while processing the input binding callback - ${e.message}`
-        }))
+        }));
       }
-
-      // we send the processing status after we are done processing
-      // note: if the callback takes longer than the expected wait time in the queue, it might be that this never gets called
-      // @todo: can we do this cleaner without sending the response directly?
-      return res.status(HttpStatusCode.OK).send(); 
     });
   }
 

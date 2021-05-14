@@ -1,6 +1,3 @@
-import http from 'http';
-import { AddressInfo } from 'net';
-import express from 'express';
 import DaprBinding from './lib/binding';
 import DaprPubSub from './lib/pubsub';
 import DaprState from './lib/state';
@@ -12,7 +9,7 @@ export default class Dapr {
   url: string;
   urlDapr: string;
   daprPort: number;
-  daprAppPort: number; // The port for our app server (e.g. dapr binding receives, pubsub receive, ...)
+  daprInternalServerPort: number; // The port for our app server (e.g. dapr binding receives, pubsub receive, ...)
   pubsub: DaprPubSub;
   state: DaprState;
   binding: DaprBinding;
@@ -20,14 +17,19 @@ export default class Dapr {
   secret: DaprSecret;
   actor: DaprActor;
 
-  constructor(daprUrl: string, daprPort: number, daprAppPort?: number) {
+  constructor(daprUrl: string, daprPort: number, daprInternalServerPort?: number) {
     this.url = daprUrl || '127.0.0.1';
     this.daprPort = daprPort || 3500;
-    this.daprAppPort = daprAppPort || 0; // get port from express
-
+    
     if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
       this.url = `http://${this.url}`;
     }
+
+    // Set the internal server port and make it available under env variable DAPR_INTERNAL_SERVER_PORT
+    // This will be fetched by the WebServerSingleton
+    // We do this to avoid requiring an initialization method on this constructor due to async/await
+    this.daprInternalServerPort = daprInternalServerPort || parseInt(process.env.DAPR_INTERNAL_SERVER_PORT || "", 10) || 0;
+    process.env.DAPR_INTERNAL_SERVER_PORT = `${this.daprInternalServerPort}`;
 
     this.urlDapr = `${this.url}:${this.daprPort}/v1.0`;
 

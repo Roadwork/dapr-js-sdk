@@ -26,15 +26,16 @@ const daprUrl = "127.0.0.1";
 const daprPort = 3500; 
 
 // Internal Server Port
-// This library spins up an internal webserver running fastify
+// This library spins up an internal webserver running restana
 // We use this internal webserver for listening to dapr specific actions (e.g. method invocation, pub/sub, ...)
 // Note: make sure to utilize --app-port <daprInternalServerPort> if you don't run your own web server
+// Note 2: you can also set this port through the environment variable DAPR_INTERNAL_SERVER_PORT
 const daprInternalServerPort = 4000; 
 
 const client = new Dapr(daprUrl, daprPort, daprInternalServerPort);
 
 // Pub / Sub
-// Note: /dapr/subscribe will be called on the provided DAPR_APP_PORT and --app-port values. 
+// Note: /dapr/subscribe will be called on the provided "daprInternalServerPort". 
 // if you are running an extra HTTP server, make sure to utilize a different port. Dapr will not wait till your app started, which is not required since the library takes care of Dapr related functionality internally.
 const pubsubCallback = async (data: any) => { console.log(data); }
 client.pubsub.subscribe("pubsub-name", "topic", pubsubCallback.bind(this))
@@ -116,7 +117,7 @@ await client.invoker.invoke("app-id", "method", { hello: "world" });
 On top of the invoking, this SDK also implements a trivial way to listen to app invocations. Instead of creating your own Express server, you can simply run the following commands which will listen to calls coming in on the provided endpoint.
 
 ```javascript
-const invokerListen = (req: express.Request, res: express.Response) => { console.log(data); }
+const invokerListen = (req: IRequest, res: IResponse) => { console.log(data); }
 await client.invoker.listen("method", invokerListen.bind(this), options)
 ```
 

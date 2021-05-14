@@ -1,51 +1,12 @@
-import express from 'express';
-import http from 'http';
-import WebServerSingleton from '../../src/singleton/WebServerSingleton';
-
-interface HookState {
-  server: express.Application;
-  serverPort: number;
-  serverUrl: string;
-  serverListener?: http.Server;
-}
-
-let state: HookState = {
-  server: createExpress(), // we will reset later
-  serverPort: 8709,
-  serverUrl: `http://127.0.0.1:8709`
-}
-
-function createExpress(): express.Application {
-  const app = express();
-  app.use(express.json());
-  return app;
-}
+import { WebServerSingleton } from '../../src/lib/WebServer';
+import WebServer, { IServerType } from '../../src/lib/WebServer/WebServer';
 
 export async function hookBeforeEach() {
-  await (new Promise<void>(async (resolve, reject) => {
-    state.server = createExpress();
-    state.serverListener = state.server.listen(state.serverPort, resolve);
-  }))
-
-  // await (await WebServerSingleton.getInstance()).initialize();
+  await WebServerSingleton.getInstance();
 }
 
 export async function hookAfterEach() {
-  await (new Promise<void>(async (resolve, reject) => {
-    if (!state.serverListener) {
-      throw new Error('Server was not initialized!');
-    }
-
-    state.serverListener.close((err) => {
-      if (err) {
-        return reject(err);
-      }
-
-      return resolve();
-    })
-  }))
-
-  await (await WebServerSingleton.getInstance()).close();
+  await WebServerSingleton.destroy();
 }
 
 export function setupHooks() {
@@ -58,6 +19,9 @@ export function setupHooks() {
   });
 }
 
-export function getState() {
-  return state;
+export async function getState() {
+  return {
+    server: await WebServerSingleton.getServer(),
+    serverAddress: await WebServerSingleton.getServerAddress()
+  }
 }

@@ -3,7 +3,7 @@ import ResponseUtil from '../utils/Response.util';
 import { TypeDaprInvokerCallback } from '../types/DaprInvokerCallback.type';
 import { InvokerListenOptionsType } from '../types/InvokerListenOptions.type';
 import { InvokerListenOptionsMethod } from '../enum/InvokerListenOptionsMethod.enum';
-import WebServerSingleton from '../singleton/WebServerSingleton';
+import WebServerSingleton from './WebServer/WebServerSingleton';
 
 // https://docs.dapr.io/reference/api/service_invocation_api/
 export default class DaprInvoker {
@@ -17,13 +17,13 @@ export default class DaprInvoker {
     const expressMethod: InvokerListenOptionsMethod = options?.method?.toLowerCase() as InvokerListenOptionsMethod || InvokerListenOptionsMethod.GET;
 
     console.log(`Listening on ${expressMethod.toUpperCase()} /${methodName}`);
-    const server = await WebServerSingleton.getInstance().getServer();
+    const server = await WebServerSingleton.getServer();
     server[expressMethod](`/${methodName}`, async (req, res) => {
       await cb(req, res);
 
       // Make sure we close the request after the callback
       if (!res.writableEnded) {
-        return res.json({ closed: true });
+        return res.end(JSON.stringify({ closed: true }));
       }
     });
   }

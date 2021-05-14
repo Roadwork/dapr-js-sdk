@@ -1,3 +1,3 @@
-import express from 'express';
+import { IRequest, IResponse } from "../lib/WebServer";
 
-export type TypeDaprPubSub = (req: express.Request, res: express.Response) => Promise<void>;
+export type TypeDaprPubSub = (req: IRequest, res: IResponse) => Promise<void>;

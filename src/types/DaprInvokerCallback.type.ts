@@ -1,3 +1,3 @@
-import express from 'express';
+import { IRequest, IResponse } from "../lib/WebServer";
 
-export type TypeDaprInvokerCallback = (req: express.Request, res: express.Response) => Promise<any | void>;
+export type TypeDaprInvokerCallback = (req: IRequest, res: IResponse) => Promise<any | void>;
