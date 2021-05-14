@@ -17,7 +17,19 @@ e.g. `DAPR_APP_PORT=4000 dapr run --app-id hello-world --app-port 4000 --dapr-ht
 ```javascript
 import Dapr, { Req, Res } from "@roadwork/dapr-js-sdk";
 
-const client = new Dapr("<dapr_url>", "<dapr_port>");
+// Dapr ConnectionInfo
+// daprUrl: the url to the Dapr Sidecar
+// daprPort: the port to the Dapr Sidecar
+const daprUrl = "127.0.0.1";
+const daprPort = 3500; 
+
+// Internal Server Port
+// This library spins up an internal webserver running fastify
+// We use this internal webserver for listening to dapr specific actions (e.g. method invocation, pub/sub, ...)
+// Note: make sure to utilize --app-port <daprInternalServerPort> if you don't run your own web server
+const daprInternalServerPort = 4000; 
+
+const client = new Dapr(daprUrl, daprPort, daprInternalServerPort);
 
 // Pub / Sub
 // Note: /dapr/subscribe will be called on the provided DAPR_APP_PORT and --app-port values. 
@@ -74,6 +86,15 @@ await client.actor.reminderGet("actor-type", "actor-id", "name");
 await client.actor.reminderDelete("actor-type", "actor-id", "name");
 await client.actor.timerCreate("actor-type", "actor-id", "name");
 await client.actor.timerDelete("actor-type", "actor-id", "name");
+```
+
+## Development
+
+### Installation
+
+```bash
+npm install
+npm run test
 ```
 
 ## Reference
