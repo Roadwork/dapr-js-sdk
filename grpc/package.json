@@ -1,0 +1,18 @@
+{
+  "name": "grpc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ts-protoc-gen": "^0.15.1-pre.a71b34e"
+  },
+  "devDependencies": {
+    "grpc_tools_node_protoc_ts": "^5.2.2",
+    "grpc-tools": "^1.11.1"
+  }
+}

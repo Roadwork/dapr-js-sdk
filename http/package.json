@@ -25,6 +25,7 @@
     "restana": "^4.9.1"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.0",
     "@types/jest": "^26.0.21",
     "@types/node": "^15.0.3",
     "@types/node-fetch": "^2.5.8",
