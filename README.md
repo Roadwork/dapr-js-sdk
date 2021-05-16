@@ -33,7 +33,6 @@ const daprPort = 3500;
 const daprInternalServerPort = 4000; 
 
 const client = new Dapr(daprHost, daprPort, daprInternalServerPort);
-await client.initialize(); // start listening on the internal server and let Dapr know we are ready
 
 // Pub / Sub
 // Note: /dapr/subscribe will be called on the provided "daprInternalServerPort". 
