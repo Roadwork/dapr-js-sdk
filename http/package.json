@@ -2,16 +2,11 @@
   "name": "@roadwork/dapr-js-sdk",
   "version": "0.1.12",
   "description": "An unofficial Dapr (https://dapr.io) SDK for Node.js",
-  "main": "build/http/index.js",
-  "types": "build/http/index.d.ts",
   "scripts": {
     "test": "jest --runInBand",
-    "build": "npm run lint && tsc --outDir ../build/http/",
+    "build": "npm run lint && tsc --outDir ./build/",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json",
-    "prepublishOnly": "npm run lint",
-    "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "lint": "tslint -p tsconfig.json"
   },
   "files": [
     "build/**/*"
@@ -25,6 +20,7 @@
     "restana": "^4.9.1"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.0",
     "@types/jest": "^26.0.21",
     "@types/node": "^15.0.3",
     "@types/node-fetch": "^2.5.8",

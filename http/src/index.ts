@@ -1,4 +1,4 @@
-import { Request as Req, Response as Res } from 'express';
+import { Request as Req, Response as Res } from 'restana';
 import Dapr from './Dapr';
 import { InvokerListenOptionsMethod } from './enum/InvokerListenOptionsMethod.enum';
 
