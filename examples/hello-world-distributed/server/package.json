@@ -1,5 +1,5 @@
 {
-  "name": "@roadwork/dapr-js-sdk-example-hello-world",
+  "name": "@roadwork/dapr-js-sdk-example-hello-world-distributed",
   "version": "1.0.0",
   "description": "An example utilizing the Dapr JS SDK",
   "main": "index.js",
@@ -8,9 +8,10 @@
     "build": "rimraf ./dist && tsc",
     "start": "npm run build && node dist/index.js",
     "start:dev": "npm run build && nodemon --ext \".ts,.js\" --watch \"./src\" --exec \"ts-node ./src/index.ts\"",
-    "start:dapr": "dapr run --app-id example-hello-world --dapr-http-port 3500 --app-port 4000 npm run start"
+    "start:dapr": "dapr run --app-id my-server --dapr-http-port 3500 --app-port 4000 npm run start"
   },
   "keywords": [],
+  "author": "",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.7",
