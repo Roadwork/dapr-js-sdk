@@ -21,6 +21,7 @@ echo "Building gRPC Library"
 # Prepare Publish
 echo "Preparing Publish"
 cp package.json build/
+cp README.md build/
 
 # Publish
 echo "Publishing"
