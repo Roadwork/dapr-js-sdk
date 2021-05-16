@@ -1,5 +1,4 @@
-import { WebServerSingleton } from '../../src/lib/WebServer';
-import WebServer, { IServerType } from '../../src/lib/WebServer/WebServer';
+import { WebServerSingleton } from '../../../src/http/lib/WebServer';
 
 export async function hookBeforeEach() {
   await WebServerSingleton.getInstance();

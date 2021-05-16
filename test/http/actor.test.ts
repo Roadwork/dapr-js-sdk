@@ -1,6 +1,5 @@
-import { IRequest, IResponse } from "../src/lib/WebServer";
-import HttpStatusCode from '../src/enum/HttpStatusCode.enum';
-import DaprActor from '../src/lib/actor';
+import { IRequest, IResponse } from "../../src/http/lib/WebServer";
+import DaprActor from '../../src/http/lib/actor';
 import { setupHooks, getState } from './utils/hook.util';
 
 // https://docs.dapr.io/reference/api/actors_api/

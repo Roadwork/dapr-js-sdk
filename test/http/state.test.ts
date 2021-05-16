@@ -1,7 +1,6 @@
-import HttpStatusCode from '../src/enum/HttpStatusCode.enum';
-import DaprState from '../src/lib/state';
+import DaprState from '../../src/http/lib/state';
 import { setupHooks, getState } from './utils/hook.util';
-import { IRequest, IResponse } from "../src/lib/WebServer";
+import { IRequest, IResponse } from "../../src/http/lib/WebServer";
 
 // https://docs.dapr.io/reference/api/pubsub_api/
 describe('state', () => {

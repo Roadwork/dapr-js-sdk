@@ -1,5 +1,5 @@
-import { IRequest, IResponse } from "../src/lib/WebServer";
-import DaprSecret from '../src/lib/secret';
+import { IRequest, IResponse } from "../../src/http/lib/WebServer";
+import DaprSecret from '../../src/http/lib/secret';
 import { setupHooks, getState } from './utils/hook.util';
 
 // https://docs.dapr.io/reference/api/secrets_api/

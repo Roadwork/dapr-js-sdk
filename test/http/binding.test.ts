@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
-import { IRequest, IResponse } from "../src/lib/WebServer";
-import HttpStatusCode from '../src/enum/HttpStatusCode.enum';
-import DaprBinding from '../src/lib/binding';
+import { IRequest, IResponse } from "../../src/http/lib/WebServer";
+import HttpStatusCode from '../../src/http/enum/HttpStatusCode.enum';
+import DaprBinding from '../../src/http/lib/binding';
 import { setupHooks, getState } from './utils/hook.util';
-import WebServerSingleton from '../src/lib/WebServer/WebServerSingleton';
+import WebServerSingleton from '../../src/http/lib/WebServer/WebServerSingleton';
 
 describe('binding', () => {
   setupHooks();
@@ -14,7 +14,7 @@ describe('binding', () => {
 
       const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
-      const mockReceive = jest.fn(async (data: object) => {})
+      const mockReceive = jest.fn(async (data: object) => console.log("mockReceive"))
       clientBinding.receive("binding-name", mockReceive);
 
       const appUrl = await WebServerSingleton.getServerAddress();
@@ -37,7 +37,7 @@ describe('binding', () => {
 
       const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
-      const mockReceive = jest.fn(async (data: object) => {})
+      const mockReceive = jest.fn(async (data: object) => console.log("mockReceive"))
       clientBinding.receive("binding-name", mockReceive);
 
       const appUrl = await WebServerSingleton.getServerAddress();
@@ -61,7 +61,7 @@ describe('binding', () => {
 
       const clientBinding = new DaprBinding("http://my-dapr-url/v1.0");
 
-      const mockReceive = jest.fn(async (data: object) => {})
+      const mockReceive = jest.fn(async (data: object) => console.log("mockReceive"))
       clientBinding.receive("binding-name", mockReceive);
 
       const res = await fetch(`${state.serverAddress}/binding-name`, {

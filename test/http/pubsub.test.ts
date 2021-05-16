@@ -1,9 +1,7 @@
 import fetch from 'node-fetch';
-import { IRequest, IResponse } from "../src/lib/WebServer";
-import HttpStatusCode from '../src/enum/HttpStatusCode.enum';
-import DaprPubSub from '../src/lib/pubsub';
+import { IRequest, IResponse } from "../../src/http/lib/WebServer";
+import DaprPubSub from '../../src/http/lib/pubsub';
 import { setupHooks, getState } from './utils/hook.util';
-import WebServerSingleton from '../src/lib/WebServer/WebServerSingleton';
 
 // https://docs.dapr.io/reference/api/pubsub_api/
 describe('pubsub', () => {
@@ -14,12 +12,9 @@ describe('pubsub', () => {
       const state = await getState();
 
       const client = new DaprPubSub(state.serverAddress);
-      console.log(state.serverAddress)
 
-      const mock = jest.fn(async (req: object, res: object) => {})
+      const mock = jest.fn(async (req: object, res: object) => console.log("mock"))
       client.subscribe("pubsub-name", "topic-name", mock);
-
-      // const appUrl = await WebServerSingleton.getServerAddress();
 
       const res = await fetch(`${state.serverAddress}/route-pubsub-name-topic-name`, {
         method: 'POST',

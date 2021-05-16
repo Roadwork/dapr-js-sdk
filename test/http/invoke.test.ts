@@ -1,10 +1,9 @@
 import fetch from 'node-fetch';
-import { IRequest, IResponse } from "../src/lib/WebServer";
-import HttpStatusCode from '../src/enum/HttpStatusCode.enum';
-import { InvokerListenOptionsMethod } from "../src/enum/InvokerListenOptionsMethod.enum";
-import DaprInvoker from "../src/lib/invoker";
+import { IRequest, IResponse } from "../../src/http/lib/WebServer";
+import { InvokerListenOptionsMethod } from "../../src/http/enum/InvokerListenOptionsMethod.enum";
+import DaprInvoker from "../../src/http/lib/invoker";
 import { setupHooks, getState } from './utils/hook.util';
-import WebServerSingleton from '../src/lib/WebServer/WebServerSingleton';
+import WebServerSingleton from '../../src/http/lib/WebServer/WebServerSingleton';
 
 describe('invoker', () => {
   setupHooks();
@@ -86,7 +85,7 @@ describe('invoker', () => {
 
       const client = new DaprInvoker(state.serverAddress);
 
-      const res = await client.invoke("my-app", "my-method", InvokerListenOptionsMethod.POST, { hello: "world" });
+      const res = await client.invoke("my-app", "my-method", { hello: "world" }, InvokerListenOptionsMethod.POST);
       expect(res).toEqual({ isSuccess: true, body: { hello: "world" } });
     });
   });

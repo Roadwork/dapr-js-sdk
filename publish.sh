@@ -1,22 +1,13 @@
 # Prepare build
 echo "Preparing Build"
 rm -rf build/
-rm -rf http/build/
-rm -rf grpc/build/
 mkdir build/
+# @todo: gRPC binding pulling and building?
 
-# Build HTTP Library
-echo "Building HTTP Library"
-cd http/
+# Build Package
+echo "Building Library"
 npm install > /dev/null
 npm run build > /dev/null
-cp -R build/ ../build/http
-rm -rf build/
-cd ..
-
-# Build gRPC Library
-echo "Building gRPC Library"
-# @todo
 
 # Prepare Publish
 echo "Preparing Publish"
