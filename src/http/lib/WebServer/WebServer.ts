@@ -16,6 +16,7 @@ export default class WebServer {
 
         this.server = Restana();
         this.server.use(bodyParser.json());
+        
         this.serverAddress = "";
     }
 
