@@ -14,11 +14,10 @@ export default class DaprInvoker {
   }
 
   async listen(methodName: string, cb: TypeDaprInvokerCallback, options: InvokerListenOptionsType = {}) {
-    const expressMethod: InvokerListenOptionsMethod = options?.method?.toLowerCase() as InvokerListenOptionsMethod || InvokerListenOptionsMethod.GET;
+    const serverMethod: InvokerListenOptionsMethod = options?.method?.toLowerCase() as InvokerListenOptionsMethod || InvokerListenOptionsMethod.GET;
 
-    console.log(`Listening on ${expressMethod.toUpperCase()} /${methodName}`);
     const server = await WebServerSingleton.getServer();
-    server[expressMethod](`/${methodName}`, async (req, res) => {
+    server[serverMethod](`/${methodName}`, async (req, res) => {
       await cb(req, res);
 
       // Make sure we close the request after the callback
@@ -26,6 +25,8 @@ export default class DaprInvoker {
         return res.end(JSON.stringify({ closed: true }));
       }
     });
+    
+    console.log(`Listening on ${serverMethod.toUpperCase()} /${methodName}`);
   }
 
   async invoke(appId: string, methodName: string, data: object = {}, method: InvokerListenOptionsMethod = InvokerListenOptionsMethod.GET) {

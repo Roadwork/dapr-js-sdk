@@ -1,7 +1,8 @@
 {
   "name": "@roadwork/dapr-js-sdk",
-  "version": "0.1.19",
+  "version": "0.1.21",
   "description": "An unofficial Dapr (https://dapr.io) SDK for Node.js",
+  "types": "http/index.d.ts",
   "scripts": {
     "test": "jest --runInBand",
     "lint": "tslint -p tsconfig.json",
