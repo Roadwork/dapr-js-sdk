@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import { IRequest, IResponse } from "../../src/http/lib/WebServer";
-import { InvokerListenOptionsMethod } from "../../src/http/enum/InvokerListenOptionsMethod.enum";
+import { HttpMethod } from "../../src/http/enum/HttpMethod.enum";
 import DaprInvoker from "../../src/http/lib/invoker";
 import { setupHooks, getState } from './utils/hook.util';
 import WebServerSingleton from '../../src/http/lib/WebServer/WebServerSingleton';
@@ -46,7 +46,7 @@ describe('invoker', () => {
       const client = new DaprInvoker(state.serverAddress);
 
       const mock = jest.fn(async (req: IRequest, res: IResponse) => res.send({ isSuccess: true }))
-      client.listen("my-method-name", mock, { method: InvokerListenOptionsMethod.POST });
+      client.listen("my-method-name", mock, { method: HttpMethod.POST });
 
       const appUrl = await WebServerSingleton.getServerAddress();
 
@@ -85,7 +85,7 @@ describe('invoker', () => {
 
       const client = new DaprInvoker(state.serverAddress);
 
-      const res = await client.invoke("my-app", "my-method", { hello: "world" }, InvokerListenOptionsMethod.POST);
+      const res = await client.invoke("my-app", "my-method", HttpMethod.POST, { hello: "world" });
       expect(res).toEqual({ isSuccess: true, body: { hello: "world" } });
     });
   });

@@ -42,13 +42,4 @@ export default class Dapr {
     this.secret = new DaprSecret(this.urlDapr);
     this.actor = new DaprActor(this.urlDapr);
   }
-
-  async initialize() {
-    // We need to call the Singleton to start listening on the port, else Dapr will not pick it up correctly
-    // Dapr will probe every 50ms to see if we are listening on our port: https://github.com/dapr/dapr/blob/a43712c97ead550ca2f733e9f7e7769ecb195d8b/pkg/runtime/runtime.go#L1694
-    // By having this initialize method, we can do a timeout of 50ms to ensure it is picked up
-    // Note: we could do this in the constructor, but we can't block the thread for 50ms then
-    WebServerSingleton.getServer();
-    setTimeout(50);
-  }
 }
