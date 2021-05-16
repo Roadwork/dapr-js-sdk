@@ -28,7 +28,7 @@ export default class DaprInvoker {
     });
   }
 
-  async invoke(appId: string, methodName: string, method: InvokerListenOptionsMethod = InvokerListenOptionsMethod.GET, data: object = {}) {
+  async invoke(appId: string, methodName: string, data: object = {}, method: InvokerListenOptionsMethod = InvokerListenOptionsMethod.GET) {
     const fetchOptions = {
       method
     };
