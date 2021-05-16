@@ -17,7 +17,7 @@ dapr run --app-id hello-world --app-port 4000 --dapr-http-port 3500 --components
 **Library:**
 
 ```javascript
-import Dapr, { Req, Res } from "@roadwork/dapr-js-sdk/http";
+import Dapr, { HttpMethod, HttpStatusCode, Req, Res } from "@roadwork/dapr-js-sdk/http";
 
 // Dapr ConnectionInfo
 // daprUrl: the url to the Dapr Sidecar
@@ -63,8 +63,8 @@ await client.binding.receive("binding-name", async (data: any) => console.log(da
 await client.binding.send("binding-name", { hello: "world" });
 
 // Invoke
-await client.invoker.invoke("app-id", "method", { hello: "world" });
-await client.invoker.listen("method", async (req: Req, res: Res) => console.log(req), options);
+await client.invoker.invoke("app-id", "method", HttpMethod.POST, { hello: "world" });
+await client.invoker.listen("method", async (req: Req, res: Res) => console.log(req), { method: HttpMethod.POST });
 
 // Secrets
 await client.secret.get("secret-store-name", "key");
