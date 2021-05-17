@@ -60,7 +60,7 @@ await client.state.transaction("store-name", stateOperations)
 
 // Binding
 await client.binding.receive("binding-name", async (data: any) => console.log(data))
-await client.binding.send("binding-name", { hello: "world" });
+await client.binding.send("binding-name", "create", { hello: "world" });
 
 // Invoke
 await client.invoker.invoke("app-id", "method", HttpMethod.POST, { hello: "world" });
