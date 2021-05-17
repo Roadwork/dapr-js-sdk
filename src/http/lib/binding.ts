@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import HttpStatusCode from '../enum/HttpStatusCode.enum';
 import WebServerSingleton from './WebServer/WebServerSingleton';
 import ResponseUtil from '../utils/Response.util';
-import { EBindingOperation } from "../enum/BindingOperation.enum";
 
 // https://docs.dapr.io/reference/api/bindings_api/
 type FunctionDaprInputCallback = (data: any) => Promise<any>;
