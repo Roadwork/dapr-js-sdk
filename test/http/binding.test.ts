@@ -115,7 +115,7 @@ describe('binding', () => {
       const mockSend = jest.fn(async (req: IRequest, res: IResponse) => res.send({ isSuccess: true }))
       state.server.post(`/bindings/my-binding-name`, mockSend);
 
-      const res = await clientBinding.send("my-binding-name", { hello: "world" }, { my: "key" });
+      const res = await clientBinding.send("my-binding-name", "create", { hello: "world" }, { my: "key" });
       expect(res).toEqual({ isSuccess: true });
     })
   })
