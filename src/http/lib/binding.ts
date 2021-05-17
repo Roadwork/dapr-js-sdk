@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import HttpStatusCode from '../enum/HttpStatusCode.enum';
 import WebServerSingleton from './WebServer/WebServerSingleton';
 import ResponseUtil from '../utils/Response.util';
+import { EBindingOperation } from "../enum/BindingOperation.enum";
 
 // https://docs.dapr.io/reference/api/bindings_api/
 type FunctionDaprInputCallback = (data: any) => Promise<any>;
@@ -41,14 +42,14 @@ export default class DaprBinding {
   }
 
   // Send an event to an external system
-  async send(bindingName: string, data: any, metadata: object): Promise<object> {
+  async send(bindingName: string, data: any, operation: string = "create", metadata: object): Promise<object> {
     const res = await fetch(`${this.daprUrl}/bindings/${bindingName}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        operation: 'create',
+        operation,
         data,
         metadata
       }),
