@@ -19,7 +19,7 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@roadwork/dapr-js-sdk": "file:../../../build",
+    "@roadwork/dapr-js-sdk": "../../../src",
     "@types/node": "^15.3.0"
   }
 }

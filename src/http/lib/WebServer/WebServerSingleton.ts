@@ -14,21 +14,21 @@ export default class WebServerSingleton {
    * This implementation let you subclass the Singleton class while keeping
    * just one instance of each subclass around.
    */
-  public static async getInstance(): Promise<WebServer> {
+  public static async getInstance(withoutInit:boolean=false): Promise<WebServer> {
     if (!this.instance) {
       this.instance = new WebServer();
       console.log("[Dapr-JS] Created WebServerSingleton");
     }
 
-    if (!this.instance.isInitialized) {
+    if (!withoutInit && !this.instance.isInitialized) {
       await this.instance.initialize();
     }
 
     return this.instance;
   }
 
-  public static async getServer(): Promise<IServerType> {
-    const server = await this.getInstance();
+  public static async getServer(withoutInit:boolean=false): Promise<IServerType> {
+    const server = await this.getInstance(withoutInit);
     return server.server;
   }
 
