@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --runInBand",
     "lint": "tslint -p tsconfig.json",
-    "build": "npm run lint && tsc --outDir ./build/"
+    "build": "npm run lint && tsc --outDir ./build/",
+    "start:dev": "npm run build && nodemon --ext \".ts,.js\" --watch \"./src\" --exec \"npm run build\""
   },
   "keywords": [],
   "author": "Xavier Geerinck",

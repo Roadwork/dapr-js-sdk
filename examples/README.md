@@ -4,7 +4,13 @@
 
 Each example can be ran in the following way:
 
+> ⚠ The `build` directory should exist! 
+
 ```bash
+# Build main library
+npm install
+npm run build
+
 # Navigate to the example
 cd invoke/hello-world/
 

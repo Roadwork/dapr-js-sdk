@@ -87,20 +87,34 @@ await client.actor.timerCreate("actor-type", "actor-id", "name");
 await client.actor.timerDelete("actor-type", "actor-id", "name");
 ```
 
-## Package Maintenance
+## Library Development
 
-For publishing a new version, we update the version in `package.json` and we run `./publish.sh`
-
-A custom script is utilized here since we have 2 libraries in one for HTTP and gRPC
-
-## Development
+The notes below help for developing the library locally.
 
 ### Installation
+
+Run the following commands to configure the library
+
+> ⚠ Make sure to have Dapr installed
 
 ```bash
 npm install
 npm run test
 ```
+
+### Running the Library
+
+The command below runs the build process and will rebuild each time we change a file. This comes in handy when checking issues.
+
+```bash
+npm run start:dev
+```
+
+### Publishing Package Package Maintenance
+
+For publishing a new version, we update the version in `package.json` and we run `./publish.sh`
+
+A custom script is utilized here since we have 2 libraries in one for HTTP and gRPC
 
 ## Reference
 
