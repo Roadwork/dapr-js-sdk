@@ -14,10 +14,11 @@ async function start() {
     console.log("[Dapr-JS][Example] Received Hello World Method Call");
     console.log(`[Dapr-JS][Example] Data: ${JSON.stringify(data.body)}`);
   }, { method: HttpMethod.POST });
-  
+  await client.start()
   await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.POST, {
     hello: "world"
   });
+  
 }
 
 start().catch((e) => {

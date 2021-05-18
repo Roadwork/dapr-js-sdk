@@ -24,7 +24,7 @@ export default class DaprPubSub {
   }
 
   async subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {
-    const server = await WebServerSingleton.getServer(true);
+    const server = await WebServerSingleton.getServer();
     
     server.get('/dapr/subscribe', (req, res) => {
       console.log(`[Dapr API][PubSub][route-${topic}] Registering route for queue ${pubSubName}`);

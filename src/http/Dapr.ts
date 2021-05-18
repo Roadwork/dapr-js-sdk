@@ -42,4 +42,7 @@ export default class Dapr {
     this.secret = new DaprSecret(this.urlDapr);
     this.actor = new DaprActor(this.urlDapr);
   }
+  public async start(){
+    await WebServerSingleton.start();
+  }
 }
