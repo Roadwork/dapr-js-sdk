@@ -23,13 +23,13 @@ export default class DaprPubSub {
     return res.status;
   }
 
-  async subscribe(subs: TypeElementOfDaprPubSub[]=[]) {
+  async subscribe(subs: TypeElementOfDaprPubSub[] = []) {
     const server = await WebServerSingleton.getServer();
-    
-    
+
+
     await Promise.all(subs.map((sub: TypeElementOfDaprPubSub, i) => {
-     
-     server.post(`/${sub.route}`, async (req, res) => {
+
+      server.post(`/${sub.route}`, async (req, res) => {
         console.log(`[Dapr API][PubSub][route-${sub.topic}] Handling incoming message`);
 
         // Process our callback
@@ -43,8 +43,8 @@ export default class DaprPubSub {
 
     server.get('/dapr/subscribe', (req, res) => {
       console.log(`[Dapr API][PubSub] Registering`);
-      let subsCopy : TypeElementOfDaprPubSub[] = JSON.parse(JSON.stringify(subs));
-      subsCopy = subsCopy.map((row:TypeElementOfDaprPubSub)=>{
+      let subsCopy: TypeElementOfDaprPubSub[] = JSON.parse(JSON.stringify(subs));
+      subsCopy = subsCopy.map((row: TypeElementOfDaprPubSub) => {
         row.cb = null;
         return row
       })
