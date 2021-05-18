@@ -8,7 +8,7 @@
     "build": "rimraf ./dist && tsc",
     "start": "npm run build && node dist/index.js",
     "start:dev": "npm run build && nodemon --ext \".ts,.js\" --watch \"./src\" --exec \"ts-node ./src/index.ts\"",
-    "start:dapr": "dapr run --app-id example-hello-world --dapr-grpc-port 50050 --app-protocol grpc --app-port 50051 npm run start"
+    "start:dapr": "dapr run --app-id example-hello-world --app-protocol grpc --app-port 50051 --dapr-grpc-port 50050 npm run start"
   },
   "keywords": [],
   "license": "ISC",

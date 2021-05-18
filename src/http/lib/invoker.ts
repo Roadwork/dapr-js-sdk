@@ -18,11 +18,21 @@ export default class DaprInvoker {
 
     const server = await WebServerSingleton.getServer();
     server[serverMethod](`/${methodName}`, async (req, res) => {
-      await cb(req, res);
-
+      const invokeResponse = await cb({
+        body: JSON.stringify(req.body),
+        query: req.originalUrl,
+        metadata: {
+          contentType: req.headers['content-type']
+        }
+      });
+      
       // Make sure we close the request after the callback
       if (!res.writableEnded) {
-        return res.end(JSON.stringify({ closed: true }));
+        if (invokeResponse) {
+          return res.end(JSON.stringify(invokeResponse));
+        } else {
+          return res.end(JSON.stringify({ closed: true }));
+        }
       }
     });
 
