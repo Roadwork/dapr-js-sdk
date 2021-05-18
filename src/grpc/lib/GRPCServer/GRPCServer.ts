@@ -7,6 +7,8 @@ import { DaprClient } from "../../proto/dapr/proto/runtime/v1/dapr_grpc_pb"
 // tslint:disable-next-line
 export interface IServerType extends grpc.Server {};
 // tslint:disable-next-line
+export interface IServerImplType extends GRPCServerImpl {};
+// tslint:disable-next-line
 export interface IRequest extends http.IncomingMessage { };
 // tslint:disable-next-line
 export interface IResponse extends http.ServerResponse { };
@@ -16,11 +18,10 @@ export default class GRPCServer {
     serverHost: string;
     serverPort: string;
     server: IServerType;
+    serverImpl: IServerImplType;
     serverCredentials: grpc.ServerCredentials;
-    client: DaprClient;
-    clientCredentials: grpc.ChannelCredentials;
 
-    constructor(host: string = "127.0.0.1", port: string = "50051") {
+    constructor(host: string, port: string) {
         this.isInitialized = false;
         this.serverHost = host;
         this.serverPort = port;
@@ -28,15 +29,12 @@ export default class GRPCServer {
         // Create Server
         this.server = new grpc.Server();
         this.serverCredentials = grpc.ServerCredentials.createInsecure();
+        this.serverImpl = new GRPCServerImpl();
 
         // Add our implementation
         console.log("[Dapr-JS][gRPC] Adding Service Implementation - AppCallbackService")
         // @ts-ignore
-        this.server.addService(AppCallbackService, new GRPCServerImpl());
-
-        // Create Client
-        this.clientCredentials = grpc.credentials.createInsecure();
-        this.client = new DaprClient(`${host}:${port}`, this.clientCredentials);
+        this.server.addService(AppCallbackService, this.serverImpl);
     }
 
     async getServerAddress(): Promise<string> {
@@ -55,12 +53,12 @@ export default class GRPCServer {
         return this.server as IServerType;
     }
 
-    async getClient(): Promise<DaprClient> {
+    async getServerImpl(): Promise<IServerImplType> {
         if (!this.isInitialized) {
             await this.initialize();
         }
 
-        return this.client;
+        return this.serverImpl;
     }
 
     async close(): Promise<void> {
@@ -93,6 +91,7 @@ export default class GRPCServer {
     }
 
     private async initializeBind(): Promise<void> {
+        console.log(`[Dapr-JS][gRPC] Starting to listen on ${this.serverHost}:${this.serverPort}`);
         return new Promise((resolve, reject) => {
             this.server.bindAsync(`${this.serverHost}:${this.serverPort}`, this.serverCredentials, (err, port) => {
                 if (err) {

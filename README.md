@@ -64,7 +64,7 @@ await client.binding.send("binding-name", "create", { hello: "world" });
 
 // Invoke
 await client.invoker.invoke("app-id", "method", HttpMethod.POST, { hello: "world" });
-await client.invoker.listen("method", async (req: Req, res: Res) => console.log(req), { method: HttpMethod.POST });
+await client.invoker.listen("method", async (data: { body: object, query: string }) => console.log(data.body), { method: HttpMethod.POST });
 
 // Secrets
 await client.secret.get("secret-store-name", "key");

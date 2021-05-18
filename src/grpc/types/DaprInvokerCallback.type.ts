@@ -1,3 +1,13 @@
-import { IRequest, IResponse } from "../lib/GRPCServer";
+export interface DaprInvokerCallbackContentMetadata {
+    contentType?: string;
+}
 
-export type TypeDaprInvokerCallback = (req: IRequest, res: IResponse) => Promise<any | void>;
+export interface DaprInvokerCallbackContent {
+    body?: string;
+    query?: string;
+    metadata?: DaprInvokerCallbackContentMetadata
+};
+
+
+
+export type TypeDaprInvokerCallback = (data: DaprInvokerCallbackContent) => Promise<any | void>;

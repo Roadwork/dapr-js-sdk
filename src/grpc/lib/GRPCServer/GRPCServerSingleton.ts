@@ -1,5 +1,4 @@
-import { DaprClient } from "../../proto/dapr/proto/runtime/v1/dapr_grpc_pb";
-import GRPCServer, { IServerType } from "./GRPCServer";
+import GRPCServer, { IServerImplType, IServerType } from "./GRPCServer";
 
 export default class GRPCServerSingleton {
   private static instance?: GRPCServer;
@@ -9,6 +8,14 @@ export default class GRPCServerSingleton {
    */
   private constructor() {}
 
+  public static async initialize(host: string, port: string): Promise<void> {
+    const instance = new GRPCServer(host, port);
+    await instance.initialize();
+    this.instance = instance;
+
+    console.log("[Dapr-JS][gRPC] Created GRPC Server Singleton");
+  }
+
   /**
    * The static method that controls the access to the singleton instance.
    *
@@ -17,12 +24,10 @@ export default class GRPCServerSingleton {
    */
   public static async getInstance(): Promise<GRPCServer> {
     if (!this.instance) {
-      this.instance = new GRPCServer();
-      console.log("[Dapr-JS] Created WebServerSingleton");
-    }
-
-    if (!this.instance.isInitialized) {
-      await this.instance.initialize();
+      throw new Error(JSON.stringify({
+        error: "GRPC_SERVER_NOT_INITIALIZED",
+        error_message: "The gRPC server was not initialized, did you call `await GRPCServerSingleton.initialize()`?"
+      }))
     }
 
     return this.instance;
@@ -33,9 +38,9 @@ export default class GRPCServerSingleton {
     return server.server;
   }
 
-  public static async getClient(): Promise<DaprClient> {
+  public static async getServerImpl(): Promise<IServerImplType> {
     const server = await this.getInstance();
-    return server.client;
+    return server.serverImpl;
   }
 
   public static async getServerAddress(): Promise<string> {
