@@ -9,7 +9,7 @@ const daprAppId = "example-hello-world";
 async function start() {
   const client = new Dapr(daprHost, daprPort, daprInternalServerPort);
   let testPubSubCallback:TypeDaprPubSub = async (req,res)=>{
-    console.log("sub result is here",req)
+    console.log("sub result is here")
   }
   const subArray : TypeElementOfDaprPubSub[]= [{
     pubSubName:"pubsub",

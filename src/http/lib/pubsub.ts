@@ -27,9 +27,9 @@ export default class DaprPubSub {
     const server = await WebServerSingleton.getServer();
     
     
-    subs.forEach((sub: TypeElementOfDaprPubSub, i) => {
+    await Promise.all(subs.map((sub: TypeElementOfDaprPubSub, i) => {
      
-      server.post(`/${sub.route}`, async (req, res) => {
+     server.post(`/${sub.route}`, async (req, res) => {
         console.log(`[Dapr API][PubSub][route-${sub.topic}] Handling incoming message`);
 
         // Process our callback
@@ -39,7 +39,7 @@ export default class DaprPubSub {
         // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
         return res.send({ success: true });
       });
-    });
+    }));
 
     server.get('/dapr/subscribe', (req, res) => {
       console.log(`[Dapr API][PubSub] Registering`);
