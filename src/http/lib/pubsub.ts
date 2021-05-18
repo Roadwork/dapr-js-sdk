@@ -23,9 +23,9 @@ export default class DaprPubSub {
     return res.status;
   }
 
-  async subscribe(subs: TypeElementOfDaprPubSub[]) {
+  async subscribe(subs: TypeElementOfDaprPubSub[]=[]) {
     const server = await WebServerSingleton.getServer();
-    if (subs.length < 1) return;
+    
     
     subs.forEach((sub: TypeElementOfDaprPubSub, i) => {
      
