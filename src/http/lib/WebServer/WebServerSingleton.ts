@@ -20,9 +20,6 @@ export default class WebServerSingleton {
       console.log("[Dapr-JS] Created WebServerSingleton");
     }
 
-    if (!this.instance.isInitialized) {
-      await this.instance.initialize();
-    }
 
     return this.instance;
   }
@@ -47,5 +44,11 @@ export default class WebServerSingleton {
     console.log("[Dapr-JS] Destroyed WebServerSingleton");
 
     delete this.instance;
+  }
+  public static async start(){
+    this.instance = await this.getInstance();
+    if (!this.instance.isInitialized) {
+      await this.instance.initialize();
+    }
   }
 }
