@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import WebServerSingleton from "./WebServer/WebServerSingleton";
-import { TypeDaprPubSub } from '../types/DaprPubSub.type';
+import { TypeDaprPubSub, TypeElementOfDaprPubSub } from '../types/DaprPubSub.type';
 
 // https://docs.dapr.io/reference/api/pubsub_api/
 export default class DaprPubSub {
@@ -23,30 +23,34 @@ export default class DaprPubSub {
     return res.status;
   }
 
-  async subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {
+  async subscribe(subs: TypeElementOfDaprPubSub[]) {
     const server = await WebServerSingleton.getServer();
+    if (subs.length < 1) return;
     
+    subs.forEach((sub: TypeElementOfDaprPubSub, i) => {
+     
+      server.post(`/${sub.route}`, async (req, res) => {
+        console.log(`[Dapr API][PubSub][route-${sub.topic}] Handling incoming message`);
+
+        // Process our callback
+        await sub.cb(req, res);
+
+        // Let Dapr know that the message was processed correctly
+        // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
+        return res.send({ success: true });
+      });
+    });
+
     server.get('/dapr/subscribe', (req, res) => {
-      console.log(`[Dapr API][PubSub][route-${topic}] Registering route for queue ${pubSubName}`);
-
-      res.send([
-        {
-          pubsubname: pubSubName,
-          topic,
-          route: `route-${pubSubName}-${topic}`,
-        },
-      ]);
+      console.log(`[Dapr API][PubSub] Registering`);
+      let subsCopy : TypeElementOfDaprPubSub[] = JSON.parse(JSON.stringify(subs));
+      subsCopy = subsCopy.map((row:TypeElementOfDaprPubSub)=>{
+        row.cb = null;
+        return row
+      })
+      res.send(subsCopy);
     });
 
-    server.post(`/route-${pubSubName}-${topic}`, async (req, res) => {
-       console.log(`[Dapr API][PubSub][route-${topic}] Handling incoming message`);
 
-      // Process our callback
-      await cb(req, res);
-
-      // Let Dapr know that the message was processed correctly
-      // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
-      return res.send({ success: true });
-    });
   }
 }
