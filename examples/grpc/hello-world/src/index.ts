@@ -9,6 +9,9 @@ async function start() {
   const client = new Dapr(daprHost, daprPort, daprInternalServerPort);
   await client.initialize();
 
+  console.log("===============================================================");
+  console.log("EXAMPLE: INVOKER API")
+  console.log("===============================================================");
   await client.invoker.listen("hello-world", async (data: any) => {
     console.log("[Dapr-JS][Example] POST /hello-world");
     console.log(`[Dapr-JS][Example] Received: ${JSON.stringify(data.body)}`);
@@ -28,6 +31,18 @@ async function start() {
   console.log(r);
   const r2 = await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.GET);
   console.log(r2);
+
+  console.log("===============================================================");
+  console.log("EXAMPLE: BINDING API")
+  console.log("===============================================================");
+  await client.binding.receive("binding-name", async (data: any) => console.log(data))
+  // await client.binding.send("binding-name", "create", { hello: "world" });
+
+  console.log("===============================================================");
+  console.log("EXAMPLE: PUBSUB API")
+  console.log("===============================================================");
+  await client.binding.receive("binding-name", async (data: any) => console.log(data))
+  // await client.binding.send("binding-name", "create", { hello: "world" });
 }
 
 start().catch((e) => {

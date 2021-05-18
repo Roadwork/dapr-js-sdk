@@ -125,6 +125,7 @@ downloadFile "https://raw.githubusercontent.com/dapr/dapr/master/dapr/proto/runt
 echo ""
 echo "Downloading latest Google Protobuf gRPC files"
 downloadFile "https://raw.githubusercontent.com/protocolbuffers/protobuf/master/src/google/protobuf/any.proto" "$PATH_ROOT/src/grpc/proto/google/protobuf/any.proto"
+downloadFile "https://raw.githubusercontent.com/protocolbuffers/protobuf/master/src/google/protobuf/empty.proto" "$PATH_ROOT/src/grpc/proto/google/protobuf/empty.proto"
 
 echo ""
 echo "Compiling gRPC files"
@@ -132,6 +133,7 @@ generateGrpc "$PATH_ROOT/src/grpc/proto" "dapr/proto/common/v1/common.proto"
 generateGrpc "$PATH_ROOT/src/grpc/proto" "dapr/proto/runtime/v1/dapr.proto"
 generateGrpc "$PATH_ROOT/src/grpc/proto" "dapr/proto/runtime/v1/appcallback.proto"
 generateGrpc "$PATH_ROOT/src/grpc/proto" "google/protobuf/any.proto"
+generateGrpc "$PATH_ROOT/src/grpc/proto" "google/protobuf/empty.proto"
 
 echo ""
 echo "DONE"
