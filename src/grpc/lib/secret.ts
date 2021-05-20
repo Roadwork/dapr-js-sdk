@@ -17,12 +17,12 @@ export default class DaprSecret {
                 }
 
                 // https://docs.dapr.io/reference/api/secrets_api/#response-body
-                return resolve(res.getDataMap());
+                return resolve(res.getDataMap()?.map_[key]);
             });
         })
     }
 
-    async getBulk(secretStoreName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
+    async getBulk(secretStoreName: string): Promise<object> {
         const msgService = new GetBulkSecretRequest();
         msgService.setStoreName(secretStoreName);
 
@@ -34,7 +34,7 @@ export default class DaprSecret {
                 }
 
                 // https://docs.dapr.io/reference/api/secrets_api/#response-body-1
-                return resolve(res.getDataMap());
+                return resolve(res.getDataMap()?.map_);
             });
         })
     }

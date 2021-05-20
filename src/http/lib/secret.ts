@@ -14,16 +14,12 @@ export default class DaprSecret {
     return ResponseUtil.handleResponse(res);
   }
 
-  async getBulk(secretStoreName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/secrets/${secretStoreName}/bulk${metadata ? `?${metadata}` : ""}`, {
-      method: 'POST',
+  async getBulk(secretStoreName: string): Promise<object> {
+    const res = await fetch(`${this.daprUrl}/secrets/${secretStoreName}/bulk`, {
+      method: 'GET',
       headers: {
         "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        keys,
-        parallelism // the number of parallel operations executed on the state store for a get operation
-      })
+      }
     });
 
     return ResponseUtil.handleResponse(res);
