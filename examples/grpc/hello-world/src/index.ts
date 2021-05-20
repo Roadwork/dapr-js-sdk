@@ -31,9 +31,16 @@ async function start() {
   // const r2 = await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.GET);
   // console.log(r2);
 
-  await client.pubsub.subscribe("pubsub-name", "topic-name", async (data: any) => console.log(data))
-  await client.binding.receive("binding-redis", async (data: any) => console.log(data))
+  console.log("===============================================================");
+  console.log("REGISTERING SERVER HANDLERS")
+  console.log("===============================================================");
+  await client.pubsub.subscribe("pubsub-redis", "test-topic", async (data: any) => console.log(`[Dapr-JS][Example][PubSub Subscribe CB] Data: ${data}`));
+  await client.binding.receive("binding-rabbitmq", async (data: any) => console.log(`[Dapr-JS][Example][Binding Receive CB] Data: ${data}`));
 
+
+  console.log("===============================================================");
+  console.log("INITIALIZING")
+  console.log("===============================================================");
   // We initialize after registering our listeners since these should be defined upfront
   // this is how Dapr works, it waits until we are listening on the port. Once that is detected
   // it will scan the binding list and pubsub subscriptions list to process
@@ -41,14 +48,12 @@ async function start() {
 
   // Now we can use the direct methods
   console.log("===============================================================");
-  console.log("EXAMPLE: PUBSUB API")
+  console.log("EXECUTING CLIENT")
   console.log("===============================================================");
-  // await client.binding.send("binding-name", "create", { hello: "world" });
-
-  console.log("===============================================================");
-  console.log("EXAMPLE: BINDING API")
-  console.log("===============================================================");
-  // await client.binding.send("binding-name", "create", { hello: "world" });
+  const resBinding = await client.binding.send("binding-rabbitmq", "create", { hello: "world" });
+  console.log(`[Dapr-JS][Example][Binding RES] Data: ${JSON.stringify(resBinding)}`);
+  const resPubSub = await client.pubsub.publish("pubsub-redis", "test-topic", { hello: "world" });
+  console.log(`[Dapr-JS][Example][PubSub RES] Data: ${JSON.stringify(resPubSub)}`);
 }
 
 start().catch((e) => {
