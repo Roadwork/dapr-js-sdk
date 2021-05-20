@@ -5,9 +5,9 @@ import { AppCallbackService } from "../../proto/dapr/proto/runtime/v1/appcallbac
 import { DaprClient } from "../../proto/dapr/proto/runtime/v1/dapr_grpc_pb"
 
 // tslint:disable-next-line
-export interface IServerType extends grpc.Server {};
+export interface IServerType extends grpc.Server { };
 // tslint:disable-next-line
-export interface IServerImplType extends GRPCServerImpl {};
+export interface IServerImplType extends GRPCServerImpl { };
 // tslint:disable-next-line
 export interface IRequest extends http.IncomingMessage { };
 // tslint:disable-next-line
@@ -21,11 +21,12 @@ export default class GRPCServer {
     serverImpl: IServerImplType;
     serverCredentials: grpc.ServerCredentials;
 
-    constructor(host: string, port: string) {
+    constructor() {
         this.isInitialized = false;
-        this.serverHost = host;
-        this.serverPort = port;
-        
+
+        this.serverHost = "";
+        this.serverPort = "";
+
         // Create Server
         this.server = new grpc.Server();
         this.serverCredentials = grpc.ServerCredentials.createInsecure();
@@ -37,37 +38,47 @@ export default class GRPCServer {
         this.server.addService(AppCallbackService, this.serverImpl);
     }
 
-    async getServerAddress(): Promise<string> {
+    getServerAddress(): string {
         if (!this.isInitialized) {
-            await this.initialize();
+            throw new Error(JSON.stringify({
+                error: "GRPC_SERVER_NOT_INITIALIZED",
+                error_message: "The gRPC server was not initialized, did you call `await GRPCServerSingleton.initialize()`?"
+            }));
         }
 
         return `${this.serverHost}:${this.serverPort}`;
     }
 
-    async getServer(): Promise<IServerType> {
+    getServer(): IServerType {
         if (!this.isInitialized) {
-            await this.initialize();
+            throw new Error(JSON.stringify({
+                error: "GRPC_SERVER_NOT_INITIALIZED",
+                error_message: "The gRPC server was not initialized, did you call `await GRPCServerSingleton.initialize()`?"
+            }));
         }
 
         return this.server as IServerType;
     }
 
-    async getServerImpl(): Promise<IServerImplType> {
-        if (!this.isInitialized) {
-            await this.initialize();
-        }
-
+    // We allow this, since this will register the routes and handlers!
+    getServerImpl(): IServerImplType {
         return this.serverImpl;
     }
 
     async close(): Promise<void> {
+        if (!this.isInitialized) {
+            throw new Error(JSON.stringify({
+                error: "GRPC_SERVER_NOT_INITIALIZED",
+                error_message: "The gRPC server was not initialized, did you call `await GRPCServerSingleton.initialize()`?"
+            }));
+        }
+
         return new Promise((resolve, reject) => {
             this.server.tryShutdown((err) => {
                 if (err) {
                     return reject(err);
                 }
-                
+
                 console.log(`[Dapr-JS][gRPC] Closed Server`);
                 this.isInitialized = false;
 
@@ -76,7 +87,10 @@ export default class GRPCServer {
         })
     }
 
-    async initialize(): Promise<void> {
+    async startServer(host: string, port: string): Promise<void> {
+        this.serverHost = host;
+        this.serverPort = port;
+
         await this.initializeBind();
         this.server.start();
 
@@ -97,7 +111,7 @@ export default class GRPCServer {
                 if (err) {
                     return reject(err);
                 }
-                
+
                 console.log(`[Dapr-JS][gRPC] Listening on ${this.serverHost}:${this.serverPort}`);
                 return resolve();
             });

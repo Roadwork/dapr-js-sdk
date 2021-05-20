@@ -1,37 +1,13 @@
-import fetch from 'node-fetch';
-import HttpStatusCode from '../enum/HttpStatusCode.enum';
-import WebServerSingleton from './GRPCServer/GRPCServerSingleton';
-import ResponseUtil from '../utils/Response.util';
+import { TypeDaprBindingCallback } from '../types/DaprBindingCallback.type';
+import GRPCServerSingleton from './GRPCServer/GRPCServerSingleton';
 
 // https://docs.dapr.io/reference/api/bindings_api/
-type FunctionDaprInputCallback = (data: any) => Promise<any>;
-
 export default class DaprBinding {
   // Receive an input from an external system
-  async receive(bindingName: string, cb: FunctionDaprInputCallback) {
-    // const server = await WebServerSingleton.getServer();
-
-    // console.log(`[Binding] Listening on /${bindingName}`);
-    // server.post(`/${bindingName}`, async (req, res) => {
-    //   req.setTimeout(60 * 1000); // amount of seconds to wait for the request CB to finalize
-
-    //   try {
-    //     await cb(req?.body);
-
-    //     // we send the processing status after we are done processing
-    //     // note: if the callback takes longer than the expected wait time in the queue, it might be that this never gets called
-    //     // @todo: can we do this cleaner without sending the response directly?
-    //     res.statusCode = HttpStatusCode.OK;
-    //     return res.end();
-    //   } catch (e) {
-    //     res.statusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
-
-    //     return res.end(JSON.stringify({
-    //       error: "COULD_NOT_PROCESS_CALLBACK",
-    //       error_msg: `Something happened while processing the input binding callback - ${e.message}`
-    //     }));
-    //   }
-    // });
+  async receive(bindingName: string, cb: TypeDaprBindingCallback) {
+    const server = await GRPCServerSingleton.getServerImpl();
+    console.log(`Registering onBindingInput Handler: Binding = ${bindingName}`);
+    server.registerInputBindingHandler(bindingName, cb);
   }
 
   // Send an event to an external system

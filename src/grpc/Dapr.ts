@@ -40,7 +40,7 @@ export default class Dapr {
   }
 
   async initialize() {
-    await GRPCServerSingleton.initialize(this.daprHost, this.daprInternalServerPort.toString());
     await GRPCClientSingleton.initialize(this.daprHost, this.daprPort.toString());
+    await GRPCServerSingleton.startServer(this.daprHost, this.daprInternalServerPort.toString());
   }
 }

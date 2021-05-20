@@ -1,5 +1,5 @@
+import { TypeDaprPubSubCallback } from "../types/DaprPubSubCallback.type";
 import GRPCServerSingleton from "./GRPCServer/GRPCServerSingleton";
-import { TypeDaprPubSub } from '../types/DaprPubSub.type';
 
 // https://docs.dapr.io/reference/api/pubsub_api/
 export default class DaprPubSub {
@@ -17,30 +17,9 @@ export default class DaprPubSub {
     return 200;
   }
 
-  async subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSub) {
-    const server = await GRPCServerSingleton.getServer();
-
-    // server.get('/dapr/subscribe', (req, res) => {
-    //   console.log(`[Dapr API][PubSub][route-${topic}] Registering route for queue ${pubSubName}`);
-
-    //   res.send([
-    //     {
-    //       pubsubname: pubSubName,
-    //       topic,
-    //       route: `route-${pubSubName}-${topic}`,
-    //     },
-    //   ]);
-    // });
-
-    // server.post(`/route-${pubSubName}-${topic}`, async (req, res) => {
-    //   // console.log(`[Dapr API][PubSub][route-${topic}] Handling incoming message`);
-
-    //   // Process our callback
-    //   await cb(req, res);
-
-    //   // Let Dapr know that the message was processed correctly
-    //   // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
-    //   return res.send({ success: true });
-    // });
+  async subscribe(pubSubName: string, topic: string, cb: TypeDaprPubSubCallback) {
+    const server = await GRPCServerSingleton.getServerImpl();
+    console.log(`Registering onTopicEvent Handler: PubSub = ${pubSubName}; Topic = ${topic}`);
+    server.registerPubSubSubscriptionHandler(pubSubName, topic, cb);
   }
 }

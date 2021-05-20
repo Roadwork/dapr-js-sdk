@@ -8,9 +8,10 @@ export default class GRPCServerSingleton {
    */
   private constructor() {}
 
-  public static async initialize(host: string, port: string): Promise<void> {
-    const instance = new GRPCServer(host, port);
-    await instance.initialize();
+  public static async startServer(host: string, port: string): Promise<void> {
+    const instance = this.getInstance();
+    await instance.startServer(host, port);
+
     this.instance = instance;
 
     console.log("[Dapr-JS][gRPC] Created GRPC Server Singleton");
@@ -22,29 +23,26 @@ export default class GRPCServerSingleton {
    * This implementation let you subclass the Singleton class while keeping
    * just one instance of each subclass around.
    */
-  public static async getInstance(): Promise<GRPCServer> {
+  public static getInstance(): GRPCServer {
     if (!this.instance) {
-      throw new Error(JSON.stringify({
-        error: "GRPC_SERVER_NOT_INITIALIZED",
-        error_message: "The gRPC server was not initialized, did you call `await GRPCServerSingleton.initialize()`?"
-      }))
+      this.instance = new GRPCServer();
     }
 
     return this.instance;
   }
 
-  public static async getServer(): Promise<IServerType> {
-    const server = await this.getInstance();
+  public static getServer(): IServerType {
+    const server = this.getInstance();
     return server.server;
   }
 
-  public static async getServerImpl(): Promise<IServerImplType> {
-    const server = await this.getInstance();
+  public static getServerImpl(): IServerImplType {
+    const server = this.getInstance();
     return server.serverImpl;
   }
 
-  public static async getServerAddress(): Promise<string> {
-    const server = await this.getInstance();
+  public static getServerAddress(): string {
+    const server = this.getInstance();
     return server.getServerAddress();
   }
 
@@ -53,7 +51,7 @@ export default class GRPCServerSingleton {
       return;
     }
 
-    const server = await this.getInstance();
+    const server = this.getInstance();
     await server.close();
     console.log("[Dapr-JS] Destroyed GRPCServerSingleton");
 

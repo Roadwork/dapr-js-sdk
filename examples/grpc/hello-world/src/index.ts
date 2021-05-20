@@ -7,41 +7,47 @@ const daprAppId = "example-hello-world";
 
 async function start() {
   const client = new Dapr(daprHost, daprPort, daprInternalServerPort);
+
+  // console.log("===============================================================");
+  // console.log("EXAMPLE: INVOKER API")
+  // console.log("===============================================================");
+  // await client.invoker.listen("hello-world", async (data: any) => {
+  //   console.log("[Dapr-JS][Example] POST /hello-world");
+  //   console.log(`[Dapr-JS][Example] Received: ${JSON.stringify(data.body)}`);
+  //   console.log(`[Dapr-JS][Example] Replying to Client`);
+  //   return { hello: "world received from POST" };
+  // }, { method: HttpMethod.POST });
+
+  // await client.invoker.listen("hello-world", async () => {
+  //   console.log("[Dapr-JS][Example] GET /hello-world");
+  //   console.log(`[Dapr-JS][Example] Replying to Client`);
+  //   return { hello: "world received from GET" };
+  // }, { method: HttpMethod.GET });
+  
+  // const r = await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.POST, {
+  //   hello: "world"
+  // });
+  // console.log(r);
+  // const r2 = await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.GET);
+  // console.log(r2);
+
+  await client.pubsub.subscribe("pubsub-name", "topic-name", async (data: any) => console.log(data))
+  await client.binding.receive("binding-redis", async (data: any) => console.log(data))
+
+  // We initialize after registering our listeners since these should be defined upfront
+  // this is how Dapr works, it waits until we are listening on the port. Once that is detected
+  // it will scan the binding list and pubsub subscriptions list to process
   await client.initialize();
 
+  // Now we can use the direct methods
   console.log("===============================================================");
-  console.log("EXAMPLE: INVOKER API")
+  console.log("EXAMPLE: PUBSUB API")
   console.log("===============================================================");
-  await client.invoker.listen("hello-world", async (data: any) => {
-    console.log("[Dapr-JS][Example] POST /hello-world");
-    console.log(`[Dapr-JS][Example] Received: ${JSON.stringify(data.body)}`);
-    console.log(`[Dapr-JS][Example] Replying to Client`);
-    return { hello: "world received from POST" };
-  }, { method: HttpMethod.POST });
-
-  await client.invoker.listen("hello-world", async () => {
-    console.log("[Dapr-JS][Example] GET /hello-world");
-    console.log(`[Dapr-JS][Example] Replying to Client`);
-    return { hello: "world received from GET" };
-  }, { method: HttpMethod.GET });
-  
-  const r = await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.POST, {
-    hello: "world"
-  });
-  console.log(r);
-  const r2 = await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.GET);
-  console.log(r2);
+  // await client.binding.send("binding-name", "create", { hello: "world" });
 
   console.log("===============================================================");
   console.log("EXAMPLE: BINDING API")
   console.log("===============================================================");
-  await client.binding.receive("binding-name", async (data: any) => console.log(data))
-  // await client.binding.send("binding-name", "create", { hello: "world" });
-
-  console.log("===============================================================");
-  console.log("EXAMPLE: PUBSUB API")
-  console.log("===============================================================");
-  await client.binding.receive("binding-name", async (data: any) => console.log(data))
   // await client.binding.send("binding-name", "create", { hello: "world" });
 }
 

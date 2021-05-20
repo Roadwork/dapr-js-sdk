@@ -20,18 +20,30 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         this.handlersTopics = {};
     }
 
+    createPubSubSubscriptionHandlerKey(pubSubName: string, topicName: string): string {
+        return `${pubSubName.toLowerCase()}|${topicName.toLowerCase()}`;
+    }
+
+    createInputBindingHandlerKey(bindingName: string): string {
+        return `${bindingName.toLowerCase()}`;
+    }
+
+    createOnInvokeHandlerKey(httpMethod: string, methodName: string): string {
+        return `${httpMethod.toLowerCase()}|${methodName.toLowerCase()}`;
+    }
+
     registerOnInvokeHandler(httpMethod: string, methodName: string, cb: TypeDaprInvokerCallback): void {
-        const handlerKey = `${httpMethod.toLowerCase()}|${methodName.toLowerCase()}`;
+        const handlerKey = this.createOnInvokeHandlerKey(httpMethod, methodName);
         this.handlersInvoke[handlerKey] = cb;
     }
 
     registerPubSubSubscriptionHandler(pubSubName: string, topicName: string, cb: TypeDaprInvokerCallback): void {
-        const handlerKey = `${pubSubName}|${topicName}`;
+        const handlerKey = this.createPubSubSubscriptionHandlerKey(pubSubName, topicName);
         this.handlersTopics[handlerKey] = cb;
     }
 
     registerInputBindingHandler(bindingName: string, cb: TypeDaprInvokerCallback): void {
-        const handlerKey = `${bindingName}`;
+        const handlerKey = this.createInputBindingHandlerKey(bindingName);
         this.handlersBindings[handlerKey] = cb;
     }
 
@@ -74,7 +86,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
     // @todo: WIP
     async onBindingEvent(call: grpc.ServerUnaryCall<BindingEventRequest, BindingEventResponse>, callback: grpc.sendUnaryData<BindingEventResponse>): Promise<void> {
         const req = call.request;
-        const handlerKey = `${req.getName()}`;
+        const handlerKey = this.createInputBindingHandlerKey(req.getName());
         
         if (!this.handlersBindings[handlerKey]) {
             console.warn(`[Dapr-JS][gRPC][Bindings] Event for binding: "${handlerKey}" was not handled`);
@@ -93,7 +105,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
     // @todo: WIP
     async onTopicEvent(call: grpc.ServerUnaryCall<TopicEventRequest, TopicEventResponse>, callback: grpc.sendUnaryData<TopicEventResponse>): Promise<void> {
         const req = call.request;
-        const handlerKey = `${req.getPubsubName()}|${req.getTopic()}`;
+        const handlerKey = this.createPubSubSubscriptionHandlerKey(req.getPubsubName(), req.getTopic());
         
         if (!this.handlersTopics[handlerKey]) {
             console.warn(`[Dapr-JS][gRPC][PubSub] Event from topic: "${handlerKey}" was not handled`);
