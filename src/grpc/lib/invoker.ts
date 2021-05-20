@@ -19,6 +19,7 @@ export default class DaprInvoker {
     server.registerOnInvokeHandler(httpMethod, methodName, cb);
   }
 
+  // @todo: should return a specific typed Promise<TypeInvokerInvokeResponse> instead of Promise<nothing>
   async invoke(appId: string, methodName: string, method: HttpMethod = HttpMethod.GET, data: object = {}) {
     const fetchOptions = {
       method

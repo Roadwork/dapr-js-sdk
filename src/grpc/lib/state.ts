@@ -1,68 +1,157 @@
-// import fetch from 'node-fetch';
-// import ResponseUtil from '../utils/Response.util';
-// import { IKeyValuePair } from '../types/KeyValuePair.type';
-// import { OperationType } from '../types/Operation.type';
-// import { IRequestMetadata } from '../types/RequestMetadata.type';
+import { IKeyValuePair } from '../types/KeyValuePair.type';
+import { OperationType } from '../types/Operation.type';
+import { IRequestMetadata } from '../types/RequestMetadata.type';
+import { DeleteStateRequest, ExecuteStateTransactionRequest, GetBulkStateRequest, GetBulkStateResponse, GetStateRequest, GetStateResponse, SaveStateRequest, TransactionalStateOperation } from '../proto/dapr/proto/runtime/v1/dapr_pb';
+import GRPCClientSingleton from './GRPCClient/GRPCClientSingleton';
+import { Etag, StateItem, StateOptions } from '../proto/dapr/proto/common/v1/common_pb';
 
-// // https://docs.dapr.io/reference/api/state_api/
-// export default class DaprState {
-//   daprUrl: string;
+// https://docs.dapr.io/reference/api/state_api/
+export default class DaprState {
+    async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<void> {
+        const stateList = [];
 
-//   constructor(daprUrl: string) {
-//     this.daprUrl = daprUrl;
-//   }
+        for (const stateObject of stateObjects) {
+            const si = new StateItem();
+            si.setKey(stateObject.key);
+            si.setValue(Buffer.from(stateObject.value, "utf-8"));
+            stateList.push(si);
+        }
 
-//   async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<object> {
-//     const res = await fetch(`${this.daprUrl}/state/${storeName}`, {
-//       method: 'POST',
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify(stateObjects),
-//     });
-//     return ResponseUtil.handleResponse(res);
-//   }
+        const msgService = new SaveStateRequest();
+        msgService.setStoreName(storeName);
+        msgService.setStatesList(stateList);
 
-//   async get(storeName: string, key: string): Promise<object> {
-//     const res = await fetch(`${this.daprUrl}/state/${storeName}/${key}`);
-//     return ResponseUtil.handleResponse(res);
-//   }
+        return new Promise(async (resolve, reject) => {
+            const client = await GRPCClientSingleton.getClient();
+            client.saveState(msgService, (err, res) => {
+                if (err) {
+                    return reject(err);
+                }
 
-//   async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
-//     const res = await fetch(`${this.daprUrl}/state/${storeName}/bulk${metadata ? `?${metadata}` : ""}`, {
-//       method: 'POST',
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify({
-//         keys,
-//         parallelism // the number of parallel operations executed on the state store for a get operation
-//       })
-//     });
+                // https://docs.dapr.io/reference/api/state_api/#response-body
+                return resolve();
+            });
+        });
+    }
 
-//     return ResponseUtil.handleResponse(res);
-//   }
+    async get(storeName: string, key: string): Promise<object> {
+        const msgService = new GetStateRequest();
+        msgService.setStoreName(storeName);
+        msgService.setKey(key)
 
-//   async delete(storeName: string, key: string): Promise<number> {
-//     const req = await fetch(`${this.daprUrl}/state/${storeName}/${key}`, {
-//       method: 'DELETE',
-//     });
+        // @todo: https://docs.dapr.io/reference/api/state_api/#optional-behaviors
+        // msgService.setConsistency()
 
-//     return req.status;
-//   }
+        return new Promise(async (resolve, reject) => {
+            const client = await GRPCClientSingleton.getClient();
+            client.getState(msgService, (err, res: GetStateResponse) => {
+                if (err) {
+                    return reject(err);
+                }
 
-//   async transaction(storeName: string, operations: OperationType[] = [], metadata: IRequestMetadata | null = null): Promise<object> {
-//     const res = await fetch(`${this.daprUrl}/state/${storeName}/transaction`, {
-//       method: 'POST',
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify({
-//         operations,
-//         metadata
-//       })
-//     });
+                // https://docs.dapr.io/reference/api/state_api/#http-response-1
+                return resolve({
+                    data: Buffer.from(res.getData()).toString(),
+                    metadata: res.getMetadataMap()
+                });
+            });
+        })
+    }
 
-//     return ResponseUtil.handleResponse(res);
-//   }
-// }
+    async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
+        const msgService = new GetBulkStateRequest();
+        msgService.setStoreName(storeName);
+        msgService.setKeysList(keys);
+        msgService.setParallelism(parallelism);
+
+        // @todo: https://docs.dapr.io/reference/api/state_api/#optional-behaviors
+        // msgService.setConsistency()
+
+        return new Promise(async (resolve, reject) => {
+            const client = await GRPCClientSingleton.getClient();
+            client.getBulkState(msgService, (err, res: GetBulkStateResponse) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                // https://docs.dapr.io/reference/api/state_api/#http-response-2
+                const items = res.getItemsList();
+
+                return resolve(items.map(i => ({
+                    key: i.getKey(),
+                    data: Buffer.from(i.getData()).toString(),
+                    etag: i.getEtag()
+                })));
+            });
+        })
+    }
+
+    async delete(storeName: string, key: string): Promise<void> {
+        const msgService = new DeleteStateRequest();
+        msgService.setStoreName(storeName);
+        msgService.setKey(key);
+
+        // @todo: implement below
+        // msgService.setEtag();
+        // msgService.setOptions();
+
+        return new Promise(async (resolve, reject) => {
+            const client = await GRPCClientSingleton.getClient();
+            client.deleteState(msgService, (err, res) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                // https://docs.dapr.io/reference/api/state_api/#http-response-3
+                return resolve();
+            });
+        });
+    }
+
+    async transaction(storeName: string, operations: OperationType[] = [], metadata: IRequestMetadata | null = null): Promise<void> {
+        const transactionItems: TransactionalStateOperation[] = [];
+
+        for (const o of operations) {
+            const si = new StateItem();            
+            si.setKey(o.request.key);
+            si.setValue(Buffer.from(o.request.value || "", "utf-8"));
+
+            if (o.request.etag) {
+                const etag = new Etag();
+                etag.setValue(o.request.etag.toString());
+
+                si.setEtag(etag);
+            }
+
+            if (o.request.options) {
+                const so = new StateOptions();
+                so.setConsistency(o.request.options.consistency as any);
+                so.setConcurrency(o.request.options.concurrency as any);
+
+                si.setOptions(so);
+            }
+
+            const transactionItem = new TransactionalStateOperation();
+            transactionItem.setOperationtype(o.operation);
+            transactionItem.setRequest(si);
+
+            transactionItems.push(transactionItem);
+        }
+
+        const msgService = new ExecuteStateTransactionRequest();
+        msgService.setStorename(storeName);
+        msgService.setOperationsList(transactionItems);
+
+        return new Promise(async (resolve, reject) => {
+            const client = await GRPCClientSingleton.getClient();
+            client.executeStateTransaction(msgService, (err, res) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                // https://docs.dapr.io/reference/api/state_api/#request-body-1
+                return resolve();
+            });
+        });
+    }
+}

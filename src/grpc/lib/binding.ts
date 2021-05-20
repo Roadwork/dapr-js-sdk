@@ -14,6 +14,7 @@ export default class DaprBinding {
 
   // Send an event to an external system
   // @todo: should pass the metadata object
+  // @todo: should return a specific typed Promise<TypeBindingResponse> instead of Promise<object>
   async send(bindingName: string, operation: string, data: any, metadata: object = {}): Promise<object> {
     const msgService = new InvokeBindingRequest();
     msgService.setName(bindingName);
@@ -26,9 +27,6 @@ export default class DaprBinding {
         if (err) {
           return reject(err);
         }
-
-        res.getData();
-        res.getMetadataMap();
 
         // https://docs.dapr.io/reference/api/bindings_api/#payload
         return resolve({

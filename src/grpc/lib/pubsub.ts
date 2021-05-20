@@ -5,6 +5,7 @@ import GRPCServerSingleton from "./GRPCServer/GRPCServerSingleton";
 
 // https://docs.dapr.io/reference/api/pubsub_api/
 export default class DaprPubSub {
+  // @todo: should return a specific typed Promise<TypePubSubPublishResponse> instead of Promise<any>
   async publish(pubSubName: string, topic: string, data: object = {}): Promise<any> {
     const msgService = new PublishEventRequest();
     msgService.setPubsubName(pubSubName);

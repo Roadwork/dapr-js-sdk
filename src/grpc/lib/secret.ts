@@ -1,31 +1,41 @@
-// import fetch from 'node-fetch';
-// import ResponseUtil from '../utils/Response.util';
+import { GetBulkSecretRequest, GetBulkSecretResponse, GetSecretRequest, GetSecretResponse } from "../proto/dapr/proto/runtime/v1/dapr_pb";
+import GRPCClientSingleton from "./GRPCClient/GRPCClientSingleton";
 
-// // https://docs.dapr.io/reference/api/secrets_api/
-// export default class DaprSecret {
-//   daprUrl: string;
+// https://docs.dapr.io/reference/api/secrets_api/
+export default class DaprSecret {
+    // @todo: implement metadata
+    async get(secretStoreName: string, key: string, metadata: string = ""): Promise<object> {
+        const msgService = new GetSecretRequest();
+        msgService.setStoreName(secretStoreName);
+        msgService.setKey(key);
 
-//   constructor(daprUrl: string) {
-//     this.daprUrl = daprUrl;
-//   }
+        return new Promise(async (resolve, reject) => {
+            const client = await GRPCClientSingleton.getClient();
+            client.getSecret(msgService, (err, res: GetSecretResponse) => {
+                if (err) {
+                    return reject(err);
+                }
 
-//   async get(secretStoreName: string, key: string, metadata: string = ""): Promise<object> {
-//     const res = await fetch(`${this.daprUrl}/secrets/${secretStoreName}/${key}${metadata ? `?${metadata}` : ""}`);
-//     return ResponseUtil.handleResponse(res);
-//   }
+                // https://docs.dapr.io/reference/api/secrets_api/#response-body
+                return resolve(res.getDataMap());
+            });
+        })
+    }
 
-//   async getBulk(secretStoreName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
-//     const res = await fetch(`${this.daprUrl}/secrets/${secretStoreName}/bulk${metadata ? `?${metadata}` : ""}`, {
-//       method: 'POST',
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify({
-//         keys,
-//         parallelism // the number of parallel operations executed on the state store for a get operation
-//       })
-//     });
+    async getBulk(secretStoreName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
+        const msgService = new GetBulkSecretRequest();
+        msgService.setStoreName(secretStoreName);
 
-//     return ResponseUtil.handleResponse(res);
-//   }
-// }
+        return new Promise(async (resolve, reject) => {
+            const client = await GRPCClientSingleton.getClient();
+            client.getBulkSecret(msgService, (err, res: GetBulkSecretResponse) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                // https://docs.dapr.io/reference/api/secrets_api/#response-body-1
+                return resolve(res.getDataMap());
+            });
+        })
+    }
+}
