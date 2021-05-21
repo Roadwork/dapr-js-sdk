@@ -20,7 +20,7 @@ async function start() {
   await client.pubsub.subscribe(subArray)
   await client.invoker.listen("hello-world", async (data: any) => {
     console.log("[Dapr-JS][Example] Received Hello World Method Call");
-    console.log(`[Dapr-JS][Example] Data: ${JSON.stringify(data.body)}`);
+    console.log(`[Dapr-JS][Example] Data: ${JSON.stringify(data)}`);
   }, { method: HttpMethod.POST });
   await client.start()
   await client.invoker.invoke(daprAppId, "hello-world", HttpMethod.POST, {
