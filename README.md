@@ -33,6 +33,8 @@ const daprPort = 3500;
 const daprInternalServerPort = 4000; 
 
 const client = new Dapr(daprHost, daprPort, daprInternalServerPort);
+await client.startClient(); // start the client to interact with the Dapr Sidecar
+await client.startServer(); // start the internal server
 
 // Pub / Sub
 // Note: /dapr/subscribe will be called on the provided "daprInternalServerPort". 

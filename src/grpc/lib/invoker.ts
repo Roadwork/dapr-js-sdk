@@ -3,7 +3,7 @@ import { InvokerListenOptionsType } from '../types/InvokerListenOptions.type';
 import { HttpMethod } from '../enum/HttpMethod.enum';
 import { HTTPExtension, InvokeRequest, InvokeResponse } from '../proto/dapr/proto/common/v1/common_pb';
 import { InvokeServiceRequest } from '../proto/dapr/proto/runtime/v1/dapr_pb';
-import { Any } from '../proto/google/protobuf/any_pb';
+import { Any } from "google-protobuf/google/protobuf/any_pb";
 
 import GRPCServerSingleton from './GRPCServer/GRPCServerSingleton';
 import GRPCClientSingleton from './GRPCClient/GRPCClientSingleton';

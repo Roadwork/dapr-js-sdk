@@ -17,7 +17,9 @@ export default class DaprSecret {
                 }
 
                 // https://docs.dapr.io/reference/api/secrets_api/#response-body
-                return resolve(res.getDataMap()?.map_[key]);
+                // @ts-ignore
+                // tslint:disable-next-line
+                return resolve(res.getDataMap()["map_"]);
             });
         })
     }
@@ -34,7 +36,9 @@ export default class DaprSecret {
                 }
 
                 // https://docs.dapr.io/reference/api/secrets_api/#response-body-1
-                return resolve(res.getDataMap()?.map_);
+                // @ts-ignore
+                // tslint:disable-next-line
+                return resolve(res.getDataMap()["map_"]);
             });
         })
     }

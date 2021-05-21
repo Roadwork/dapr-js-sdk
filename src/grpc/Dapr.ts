@@ -5,7 +5,7 @@ import GRPCClientSingleton from './lib/GRPCClient/GRPCClientSingleton';
 import GRPCServerSingleton from './lib/GRPCServer/GRPCServerSingleton';
 import DaprInvoker from './lib/invoker';
 import DaprSecret from './lib/secret';
-// import DaprActor from './lib/actor';
+import DaprActor from './lib/actor';
 
 export default class Dapr {
   daprHost: string;
@@ -16,12 +16,12 @@ export default class Dapr {
   binding: DaprBinding;
   invoker: DaprInvoker;
   secret: DaprSecret;
-  // actor: DaprActor;
+  actor: DaprActor;
 
   constructor(daprHost: string, daprPort: string, daprInternalServerPort: string = "50050") {
     this.daprHost = daprHost || '127.0.0.1';
-    this.daprPort = process.env.DAPR_INTERNAL_SERVER_PORT || daprPort || "5005";
-    this.daprInternalServerPort = daprInternalServerPort;
+    this.daprPort = daprPort || "5005";
+    this.daprInternalServerPort = process.env.DAPR_INTERNAL_SERVER_PORT || daprInternalServerPort;
 
     // If DAPR_INTERNAL_SERVER_PORT was not set, we set it
     // This will be fetched by the GRPCServerSingleton
@@ -36,11 +36,14 @@ export default class Dapr {
     this.binding = new DaprBinding();
     this.invoker = new DaprInvoker();
     this.secret = new DaprSecret();
-    // this.actor = new DaprActor(this.daprHost);
+    this.actor = new DaprActor();
   }
 
-  async initialize() {
+  async startClient() {
     await GRPCClientSingleton.initialize(this.daprHost, this.daprPort.toString());
+  }
+
+  async startServer() {
     await GRPCServerSingleton.startServer(this.daprHost, this.daprInternalServerPort.toString());
   }
 }
