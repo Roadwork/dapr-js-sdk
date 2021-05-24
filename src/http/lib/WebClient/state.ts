@@ -1,19 +1,19 @@
-import fetch from 'node-fetch';
-import ResponseUtil from '../utils/Response.util';
-import { IKeyValuePair } from '../types/KeyValuePair.type';
-import { OperationType } from '../types/Operation.type';
-import { IRequestMetadata } from '../types/RequestMetadata.type';
+import ResponseUtil from '../../utils/Response.util';
+import { IKeyValuePair } from '../../types/KeyValuePair.type';
+import { OperationType } from '../../types/Operation.type';
+import { IRequestMetadata } from '../../types/RequestMetadata.type';
+import WebClient from './WebClient';
 
 // https://docs.dapr.io/reference/api/state_api/
-export default class DaprState {
-  daprUrl: string;
+export default class DaprClientState {
+  client: WebClient;
 
-  constructor(daprUrl: string) {
-    this.daprUrl = daprUrl;
+  constructor(client: WebClient) {
+    this.client = client;
   }
 
   async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/state/${storeName}`, {
+    const res = await this.client.execute(`/state/${storeName}`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -24,12 +24,12 @@ export default class DaprState {
   }
 
   async get(storeName: string, key: string): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/state/${storeName}/${key}`);
+    const res = await this.client.execute(`/state/${storeName}/${key}`);
     return ResponseUtil.handleResponse(res);
   }
 
   async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/state/${storeName}/bulk${metadata ? `?${metadata}` : ""}`, {
+    const res = await this.client.execute(`/state/${storeName}/bulk${metadata ? `?${metadata}` : ""}`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -44,7 +44,7 @@ export default class DaprState {
   }
 
   async delete(storeName: string, key: string): Promise<number> {
-    const req = await fetch(`${this.daprUrl}/state/${storeName}/${key}`, {
+    const req = await this.client.execute(`/state/${storeName}/${key}`, {
       method: 'DELETE',
     });
 
@@ -52,7 +52,7 @@ export default class DaprState {
   }
 
   async transaction(storeName: string, operations: OperationType[] = [], metadata: IRequestMetadata | null = null): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/state/${storeName}/transaction`, {
+    const res = await this.client.execute(`/state/${storeName}/transaction`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"

@@ -1,4 +1,4 @@
-import Dapr, { HttpMethod } from "@roadwork/dapr-js-sdk/http";
+import { DaprServer, DaprClient, HttpMethod } from "@roadwork/dapr-js-sdk/http";
 
 const daprHost = "127.0.0.1";
 const daprPort = "50050"; // Dapr Sidecar Port of this Example Server
@@ -32,14 +32,14 @@ async function start() {
   console.log("===============================================================");
   console.log("EXECUTING CLIENT -INVOKER")
   console.log("===============================================================");
-  await client.invoker.listen("hello-world", async (data: any) => {
+  await server.invoker.listen("hello-world", async (data: any) => {
     console.log("[Dapr-JS][Example] POST /hello-world");
     console.log(`[Dapr-JS][Example] Received: ${JSON.stringify(data.body)}`);
     console.log(`[Dapr-JS][Example] Replying to Client`);
     return { hello: "world received from POST" };
   }, { method: HttpMethod.POST });
 
-  await client.invoker.listen("hello-world", async () => {
+  await server.invoker.listen("hello-world", async () => {
     console.log("[Dapr-JS][Example] GET /hello-world");
     console.log(`[Dapr-JS][Example] Replying to Client`);
     return { hello: "world received from GET" };

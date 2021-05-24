@@ -1,14 +1,14 @@
-import DaprServerBinding from './lib/GRPCServer/binding';
-import DaprServerPubSub from './lib/GRPCServer/pubsub';
-import DaprServerInvoker from './lib/GRPCServer/invoker';
-import DaprServerActor from './lib/GRPCServer/actor';
-import GRPCServer from './lib/GRPCServer/GRPCServer';
+import DaprServerBinding from './lib/WebServer/binding';
+import DaprServerPubSub from './lib/WebServer/pubsub';
+import DaprServerInvoker from './lib/WebServer/invoker';
+import DaprServerActor from './lib/WebServer/actor';
+import WebServer from './lib/WebServer/WebServer';
 
 export default class DaprServer {
   daprHost: string;
   daprPort: string;
   daprInternalServerPort: string; // The port for our app server (e.g. dapr binding receives, pubsub receive, ...)\
-  daprServer: GRPCServer;
+  daprServer: WebServer;
   pubsub: DaprServerPubSub;
   binding: DaprServerBinding;
   invoker: DaprServerInvoker;
@@ -18,7 +18,7 @@ export default class DaprServer {
     this.daprHost = daprHost || '127.0.0.1';
     this.daprPort = daprPort || "5005";
     this.daprInternalServerPort = process.env.DAPR_INTERNAL_SERVER_PORT || daprInternalServerPort;
-    this.daprServer = new GRPCServer();
+    this.daprServer = new WebServer();
 
     // If DAPR_INTERNAL_SERVER_PORT was not set, we set it
     // This will be fetched by the GRPCServerSingleton

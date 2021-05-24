@@ -1,17 +1,17 @@
-import fetch from 'node-fetch';
-import ResponseUtil from '../utils/Response.util';
-import { InvokeFetchOptions } from '../types/InvokeFetchOptions';
-import { OperationType } from '../types/Operation.type';
-import { ActorReminderType } from '../types/ActorReminder.type';
-import { ActorTimerType } from '../types/ActorTimer.type';
-import { ResActorDeactivateDto } from '../dto/ResActorDeactivate.dto';
+import ResponseUtil from '../../utils/Response.util';
+import { InvokeFetchOptions } from '../../types/InvokeFetchOptions';
+import { OperationType } from '../../types/Operation.type';
+import { ActorReminderType } from '../../types/ActorReminder.type';
+import { ActorTimerType } from '../../types/ActorTimer.type';
+import { ResActorDeactivateDto } from '../../dto/ResActorDeactivate.dto';
+import WebClient from './WebClient';
 
 // https://docs.dapr.io/reference/api/actors_api/
-export default class DaprActor {
-  daprUrl: string;
+export default class DaprClientActor {
+  client: WebClient;
 
-  constructor(daprUrl: string) {
-    this.daprUrl = daprUrl;
+  constructor(client: WebClient) {
+    this.client = client;
   }
 
   async invoke(method: "GET" | "POST" | "PUT" | "DELETE" = "POST", actorType: string, actorId: string, methodName: string, body?: object): Promise<object> {
@@ -26,13 +26,13 @@ export default class DaprActor {
       fetchOptions.body = JSON.stringify(body);
     }
 
-    const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/method/${methodName}`, fetchOptions as object);
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/method/${methodName}`, fetchOptions as object);
     
     return ResponseUtil.handleResponse(res);
   }
 
   async stateTransaction(actorType: string, actorId: string, operations: OperationType[]): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/state`, {
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/state`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -44,12 +44,12 @@ export default class DaprActor {
   }
 
   async stateGet(actorType: string, actorId: string, key: string): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/state/${key}`);
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/state/${key}`);
     return ResponseUtil.handleResponse(res);
   }
 
   async reminderCreate(actorType: string, actorId: string, name: string, reminder: ActorReminderType): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/reminders/${name}`, {
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/reminders/${name}`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -60,12 +60,12 @@ export default class DaprActor {
   }
 
   async reminderGet(actorType: string, actorId: string, name: string): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/reminders/${name}`);
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/reminders/${name}`);
     return ResponseUtil.handleResponse(res);
   }
 
   async reminderDelete(actorType: string, actorId: string, name: string): Promise<number> {
-    const req = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/reminders/${name}`, {
+    const req = await this.client.execute(`/actors/${actorType}/${actorId}/reminders/${name}`, {
       method: 'DELETE',
     });
 
@@ -73,7 +73,7 @@ export default class DaprActor {
   }
 
   async timerCreate(actorType: string, actorId: string, name: string, timer: ActorTimerType): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/timers/${name}`, {
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/timers/${name}`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -84,7 +84,7 @@ export default class DaprActor {
   }
 
   async timerDelete(actorType: string, actorId: string, name: string): Promise<number> {
-    const req = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}/timers/${name}`, {
+    const req = await this.client.execute(`/actors/${actorType}/${actorId}/timers/${name}`, {
       method: 'DELETE',
     });
 
@@ -92,7 +92,7 @@ export default class DaprActor {
   }
 
   async deactivate(actorType: string, actorId: string): Promise<ResActorDeactivateDto> {
-    const res = await fetch(`${this.daprUrl}/actors/${actorType}/${actorId}`, {
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}`, {
       method: 'DELETE',
     });
 
@@ -100,7 +100,7 @@ export default class DaprActor {
   }
 
   async getActors(): Promise<object> {
-    const res = await fetch(`${this.daprUrl.replace('/v1.0', '')}/dapr/config`);
+    const res = await this.client.execute(`replace('/v1.0', '')}/dapr/config`);
     return ResponseUtil.handleResponse(res);
   }
 }

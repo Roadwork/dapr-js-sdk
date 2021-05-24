@@ -21,11 +21,11 @@ export default class GRPCServer {
     serverImpl: IServerImplType;
     serverCredentials: grpc.ServerCredentials;
 
-    constructor(host: string, port: string) {
+    constructor() {
         this.isInitialized = false;
 
-        this.serverHost = host;
-        this.serverPort = port;
+        this.serverHost = "";
+        this.serverPort = "";
 
         // Create Server
         this.server = new grpc.Server();

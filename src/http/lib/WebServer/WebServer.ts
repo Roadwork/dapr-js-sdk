@@ -13,12 +13,17 @@ export interface IRequest extends http.IncomingMessage, Restana.RequestExtension
 export interface IResponse extends http.ServerResponse, Restana.ResponseExtensions { };
 
 export default class WebServer {
+    serverHost: string;
+    serverPort: string;
     isInitialized: boolean;
     server: IServerType;
     serverAddress: string;
     serverImpl: IServerImplType;
 
     constructor() {
+        this.serverHost = "";
+        this.serverPort = "";
+
         this.isInitialized = false;
 
         this.server = Restana();
@@ -41,12 +46,12 @@ export default class WebServer {
     }
 
     getServer(): IServerType {
-        if (!this.isInitialized) {
-            throw new Error(JSON.stringify({
-                error: "HTTP_SERVER_NOT_INITIALIZED",
-                error_message: "The HTTP server was not initialized, did you call `await HTTPServerSingleton.initialize()`?"
-            }));
-        }
+        // if (!this.isInitialized) {
+        //     throw new Error(JSON.stringify({
+        //         error: "HTTP_SERVER_NOT_INITIALIZED",
+        //         error_message: "The HTTP server was not initialized, did you call `await HTTPServerSingleton.initialize()`?"
+        //     }));
+        // }
 
         return this.server as IServerType;
     }
