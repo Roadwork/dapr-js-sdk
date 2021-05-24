@@ -1,13 +1,19 @@
-import { OperationType } from '../types/Operation.type';
-import { ActorReminderType } from '../types/ActorReminder.type';
-import { ActorTimerType } from '../types/ActorTimer.type';
-import { ExecuteActorStateTransactionRequest, GetActorStateRequest, GetActorStateResponse, GetMetadataResponse, InvokeActorRequest, InvokeActorResponse, RegisterActorReminderRequest, RegisterActorTimerRequest, TransactionalActorStateOperation, UnregisterActorReminderRequest, UnregisterActorTimerRequest } from '../proto/dapr/proto/runtime/v1/dapr_pb';
-import GRPCClientSingleton from './GRPCClient/GRPCClientSingleton';
+import { OperationType } from '../../types/Operation.type';
+import { ActorReminderType } from '../../types/ActorReminder.type';
+import { ActorTimerType } from '../../types/ActorTimer.type';
+import { ExecuteActorStateTransactionRequest, GetActorStateRequest, GetActorStateResponse, GetMetadataResponse, InvokeActorRequest, InvokeActorResponse, RegisterActorReminderRequest, RegisterActorTimerRequest, TransactionalActorStateOperation, UnregisterActorReminderRequest, UnregisterActorTimerRequest } from '../../proto/dapr/proto/runtime/v1/dapr_pb';
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Any } from "google-protobuf/google/protobuf/any_pb";
+import GRPCClient from './GRPCClient';
 
 // https://docs.dapr.io/reference/api/actors_api/
 export default class DaprActor {
+    client: GRPCClient;
+
+    constructor(client: GRPCClient) {
+        this.client = client;
+    }
+
     async invoke(method: "GET" | "POST" | "PUT" | "DELETE", actorType: string, actorId: string, methodName: string, body?: object): Promise<object> {
         const msgService = new InvokeActorRequest();
         msgService.setActorId(actorId)
@@ -19,7 +25,7 @@ export default class DaprActor {
         }
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.invokeActor(msgService, (err, res: InvokeActorResponse) => {
                 if (err) {
                     return reject(err);
@@ -58,7 +64,7 @@ export default class DaprActor {
         msgService.setOperationsList(transactionItems);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.executeActorStateTransaction(msgService, (err, res) => {
                 if (err) {
                     return reject(err);
@@ -77,7 +83,7 @@ export default class DaprActor {
         msgService.setKey(key);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.getActorState(msgService, (err, res: GetActorStateResponse) => {
                 if (err) {
                     return reject(err);
@@ -114,7 +120,7 @@ export default class DaprActor {
         }
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.registerActorReminder(msgService, (err, res) => {
                 if (err) {
                     return reject(err);
@@ -165,7 +171,7 @@ export default class DaprActor {
         msgService.setName(name);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.unregisterActorReminder(msgService, (err, res) => {
                 if (err) {
                     return reject(err);
@@ -200,7 +206,7 @@ export default class DaprActor {
         }
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.registerActorTimer(msgService, (err, res) => {
                 if (err) {
                     return reject(err);
@@ -219,7 +225,7 @@ export default class DaprActor {
         msgService.setName(name);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.unregisterActorTimer(msgService, (err, res) => {
                 if (err) {
                     return reject(err);
@@ -253,7 +259,7 @@ export default class DaprActor {
 
     async getActors(): Promise<object> {
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
 
             client.getMetadata(new Empty(), (err, res: GetMetadataResponse) => {
                 if (err) {

@@ -1,8 +1,14 @@
-import { GetBulkSecretRequest, GetBulkSecretResponse, GetSecretRequest, GetSecretResponse } from "../proto/dapr/proto/runtime/v1/dapr_pb";
-import GRPCClientSingleton from "./GRPCClient/GRPCClientSingleton";
+import { GetBulkSecretRequest, GetBulkSecretResponse, GetSecretRequest, GetSecretResponse } from "../../proto/dapr/proto/runtime/v1/dapr_pb";
+import GRPCClient from './GRPCClient';
 
 // https://docs.dapr.io/reference/api/secrets_api/
 export default class DaprSecret {
+    client: GRPCClient;
+
+    constructor(client: GRPCClient) {
+        this.client = client;
+    }
+
     // @todo: implement metadata
     async get(secretStoreName: string, key: string, metadata: string = ""): Promise<object> {
         const msgService = new GetSecretRequest();
@@ -10,7 +16,7 @@ export default class DaprSecret {
         msgService.setKey(key);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.getSecret(msgService, (err, res: GetSecretResponse) => {
                 if (err) {
                     return reject(err);
@@ -29,7 +35,7 @@ export default class DaprSecret {
         msgService.setStoreName(secretStoreName);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.getBulkSecret(msgService, (err, res: GetBulkSecretResponse) => {
                 if (err) {
                     return reject(err);

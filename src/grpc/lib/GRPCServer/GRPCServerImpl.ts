@@ -7,7 +7,6 @@ import { BindingEventRequest, BindingEventResponse, ListInputBindingsResponse, L
 import { TypeDaprBindingCallback } from "../../types/DaprBindingCallback.type";
 import { TypeDaprPubSubCallback } from "../../types/DaprPubSubCallback.type";
 
-
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Any } from "google-protobuf/google/protobuf/any_pb";
 

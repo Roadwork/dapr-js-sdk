@@ -1,12 +1,18 @@
-import { IKeyValuePair } from '../types/KeyValuePair.type';
-import { OperationType } from '../types/Operation.type';
-import { IRequestMetadata } from '../types/RequestMetadata.type';
-import { DeleteStateRequest, ExecuteStateTransactionRequest, GetBulkStateRequest, GetBulkStateResponse, GetStateRequest, GetStateResponse, SaveStateRequest, TransactionalStateOperation } from '../proto/dapr/proto/runtime/v1/dapr_pb';
-import GRPCClientSingleton from './GRPCClient/GRPCClientSingleton';
-import { Etag, StateItem, StateOptions } from '../proto/dapr/proto/common/v1/common_pb';
+import { IKeyValuePair } from '../../types/KeyValuePair.type';
+import { OperationType } from '../../types/Operation.type';
+import { IRequestMetadata } from '../../types/RequestMetadata.type';
+import { DeleteStateRequest, ExecuteStateTransactionRequest, GetBulkStateRequest, GetBulkStateResponse, GetStateRequest, GetStateResponse, SaveStateRequest, TransactionalStateOperation } from '../../proto/dapr/proto/runtime/v1/dapr_pb';
+import { Etag, StateItem, StateOptions } from '../../proto/dapr/proto/common/v1/common_pb';
+import GRPCClient from './GRPCClient';
 
 // https://docs.dapr.io/reference/api/state_api/
 export default class DaprState {
+    client: GRPCClient;
+
+    constructor(client: GRPCClient) {
+        this.client = client;
+    }
+
     async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<void> {
         const stateList = [];
 
@@ -22,7 +28,7 @@ export default class DaprState {
         msgService.setStatesList(stateList);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.saveState(msgService, (err, res) => {
                 if (err) {
                     return reject(err);
@@ -43,7 +49,7 @@ export default class DaprState {
         // msgService.setConsistency()
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.getState(msgService, (err, res: GetStateResponse) => {
                 if (err) {
                     return reject(err);
@@ -68,7 +74,7 @@ export default class DaprState {
         // msgService.setConsistency()
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.getBulkState(msgService, (err, res: GetBulkStateResponse) => {
                 if (err) {
                     return reject(err);
@@ -96,7 +102,7 @@ export default class DaprState {
         // msgService.setOptions();
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.deleteState(msgService, (err, res) => {
                 if (err) {
                     return reject(err);
@@ -112,7 +118,7 @@ export default class DaprState {
         const transactionItems: TransactionalStateOperation[] = [];
 
         for (const o of operations) {
-            const si = new StateItem();            
+            const si = new StateItem();
             si.setKey(o.request.key);
             si.setValue(Buffer.from(o.request.value || "", "utf-8"));
 
@@ -143,7 +149,7 @@ export default class DaprState {
         msgService.setOperationsList(transactionItems);
 
         return new Promise(async (resolve, reject) => {
-            const client = await GRPCClientSingleton.getClient();
+            const client = this.client.getClient();
             client.executeStateTransaction(msgService, (err, res) => {
                 if (err) {
                     return reject(err);

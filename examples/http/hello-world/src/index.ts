@@ -1,8 +1,9 @@
 import Dapr, { HttpMethod } from "@roadwork/dapr-js-sdk/http";
 
 const daprHost = "127.0.0.1";
-const daprPort = "50050"; // HTTP Port for Dapr Client
-const daprInternalServerPort = "50051"; // HTTP Port for Dapr Server
+const daprPort = "50050"; // Dapr Sidecar Port of this Example Server
+const daprPortActor = "10002"; // Dapr Sidecar Port of the Actor Server
+const daprInternalServerPort = "50051"; // App Port of this Example Server
 const daprAppId = "example-hello-world";
 
 async function sleep(ms: number): Promise<void> {
@@ -10,13 +11,15 @@ async function sleep(ms: number): Promise<void> {
 }
 
 async function start() {
-  const client = new Dapr(daprHost, daprPort, daprInternalServerPort);
+  const server = new DaprServer(daprHost, daprPort, daprInternalServerPort);
+  const client = new DaprClient(daprHost, daprPort);
+  const clientActor = new DaprClient(daprHost, daprPortActor);
 
   console.log("===============================================================");
   console.log("REGISTERING SERVER HANDLERS")
   console.log("===============================================================");
-  await client.binding.receive("binding-rabbitmq", async (data) => console.log(`[Dapr-JS][Example][Binding Receive] Got Data: ${JSON.stringify(data)}`));
-  await client.pubsub.subscribe("pubsub-redis", "test-topic", async (data) => console.log(`[Dapr-JS][Example][PubSub Subscribe] Got Data: ${JSON.stringify(data)}`));
+  await server.binding.receive("binding-rabbitmq", async (data) => console.log(`[Dapr-JS][Example][Binding Receive] Got Data: ${JSON.stringify(data)}`));
+  await server.pubsub.subscribe("pubsub-redis", "test-topic", async (data) => console.log(`[Dapr-JS][Example][PubSub Subscribe] Got Data: ${JSON.stringify(data)}`));
 
   console.log("===============================================================");
   console.log("INITIALIZING")
@@ -24,8 +27,7 @@ async function start() {
   // We initialize after registering our listeners since these should be defined upfront
   // this is how Dapr works, it waits until we are listening on the port. Once that is detected
   // it will scan the binding list and pubsub subscriptions list to process
-  await client.startServer();
-  await client.startClient();
+  await server.startServer();
 
   console.log("===============================================================");
   console.log("EXECUTING CLIENT -INVOKER")
@@ -59,7 +61,7 @@ async function start() {
   await client.pubsub.publish("pubsub-redis", "test-topic", { hello: "world" });
   console.log(`[Dapr-JS][Example][PubSub] Published to pubsub pubsub-redis on topic "test-topic"`);
 
-  await sleep(1000); // wait a bit to receive the messages
+  await sleep(500); // wait a bit to receive the messages
 
   console.log("===============================================================");
   console.log("EXECUTING CLIENT - SECRETS");
@@ -123,12 +125,10 @@ async function start() {
   console.log("EXECUTING CLIENT - ACTORS");
   console.log("Note: we create new client for now since Actors are not supported internally!")
   console.log("===============================================================");
-  const clientActor = new Dapr(daprHost, "10002");
-  await clientActor.startClient();
   await clientActor.actor.invoke("POST", "DemoActor", "MyActorId1", "SetDataAsync", { PropertyA: "hello", PropertyB: "world", ToNotExistKey: "this should not exist since we only have PropertyA and PropertyB" });
   const resActorInvoke = await clientActor.actor.invoke("GET", "DemoActor", "MyActorId1", "GetDataAsync"); // will only return PropertyA and PropertyB since these are the only properties that can be set
   console.log(`[Dapr-JS][Example][Actors] Invoked Method and got data: ${JSON.stringify(resActorInvoke)}`);
-  
+
   await clientActor.actor.stateTransaction("DemoActor", "MyActorId1", [
     {
       operation: "upsert",
