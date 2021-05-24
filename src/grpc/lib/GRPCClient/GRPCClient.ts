@@ -18,4 +18,8 @@ export default class GRPCClient {
         console.log(`[Dapr-JS][gRPC] Opening connection to ${this.clientHost}:${this.clientPort}`);
         this.client = new DaprClient(`${this.clientHost}:${this.clientPort}`, this.clientCredentials);
     }
+
+    getClient() {
+        return this.client;
+    }
 }

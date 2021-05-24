@@ -1,21 +1,19 @@
-import fetch from 'node-fetch';
-import HttpStatusCode from '../enum/HttpStatusCode.enum';
-import WebServerSingleton from './WebServer/WebServerSingleton';
-import ResponseUtil from '../utils/Response.util';
+import HttpStatusCode from '../../enum/HttpStatusCode.enum';
+import WebServer from './WebServer';
 
 // https://docs.dapr.io/reference/api/bindings_api/
 type FunctionDaprInputCallback = (data: any) => Promise<any>;
 
-export default class DaprBinding {
-  daprUrl: string;
+export default class DaprServerBinding {
+  server: WebServer;
 
-  constructor(daprUrl: string) {
-    this.daprUrl = daprUrl;
+  constructor(server: WebServer) {
+      this.server = server;
   }
 
   // Receive an input from an external system
   async receive(bindingName: string, cb: FunctionDaprInputCallback) {
-    const server = await WebServerSingleton.getServer();
+    const server = await this.server.getServer();
 
     console.log(`[Binding] Listening on /${bindingName}`);
     server.post(`/${bindingName}`, async (req, res) => {
@@ -38,22 +36,5 @@ export default class DaprBinding {
         }));
       }
     });
-  }
-
-  // Send an event to an external system
-  async send(bindingName: string, operation: string, data: any, metadata: object = {}): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/bindings/${bindingName}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        operation,
-        data,
-        metadata
-      }),
-    });
-
-    return ResponseUtil.handleResponse(res);
   }
 }

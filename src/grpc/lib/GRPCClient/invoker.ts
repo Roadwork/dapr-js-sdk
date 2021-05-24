@@ -1,22 +1,17 @@
-import { TypeDaprInvokerCallback } from '../types/DaprInvokerCallback.type';
-import { InvokerListenOptionsType } from '../types/InvokerListenOptions.type';
-import { HttpMethod } from '../enum/HttpMethod.enum';
-import { HTTPExtension, InvokeRequest, InvokeResponse } from '../proto/dapr/proto/common/v1/common_pb';
-import { InvokeServiceRequest } from '../proto/dapr/proto/runtime/v1/dapr_pb';
+import { HttpMethod } from '../../enum/HttpMethod.enum';
+import { HTTPExtension, InvokeRequest, InvokeResponse } from '../../proto/dapr/proto/common/v1/common_pb';
+import { InvokeServiceRequest } from '../../proto/dapr/proto/runtime/v1/dapr_pb';
 import { Any } from "google-protobuf/google/protobuf/any_pb";
 
-import GRPCServerSingleton from './GRPCServer/GRPCServerSingleton';
-import GRPCClientSingleton from './GRPCClient/GRPCClientSingleton';
-
-import * as HttpVerbUtil from "../utils/HttpVerb.util";
+import * as HttpVerbUtil from "../../utils/HttpVerb.util";
+import GRPCClient from './GRPCClient';
 
 // https://docs.dapr.io/reference/api/service_invocation_api/
 export default class DaprInvoker {
-  async listen(methodName: string, cb: TypeDaprInvokerCallback, options: InvokerListenOptionsType = {}) {
-    const httpMethod: HttpMethod = options?.method?.toLowerCase() as HttpMethod || HttpMethod.GET;
-    const server = await GRPCServerSingleton.getServerImpl();
-    console.log(`Registering onInvoke Handler ${httpMethod} /${methodName}`);
-    server.registerOnInvokeHandler(httpMethod, methodName, cb);
+  client: GRPCClient;
+
+  constructor(client: GRPCClient) {
+      this.client = client;
   }
 
   // @todo: should return a specific typed Promise<TypeInvokerInvokeResponse> instead of Promise<nothing>
@@ -56,7 +51,7 @@ export default class DaprInvoker {
     msgInvokeService.setMessage(msgInvoke);
 
     return new Promise(async (resolve, reject) => {
-      const client = await GRPCClientSingleton.getClient();
+      const client = this.client.getClient();
       client.invokeService(msgInvokeService, (err, res: InvokeResponse) => {
         if (err) {
           return reject(err);

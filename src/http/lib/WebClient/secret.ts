@@ -1,21 +1,21 @@
-import fetch from 'node-fetch';
-import ResponseUtil from '../utils/Response.util';
+import ResponseUtil from '../../utils/Response.util';
+import WebClient from './WebClient';
 
 // https://docs.dapr.io/reference/api/secrets_api/
-export default class DaprSecret {
-  daprUrl: string;
+export default class DaprClientSecret {
+  client: WebClient;
 
-  constructor(daprUrl: string) {
-    this.daprUrl = daprUrl;
+  constructor(client: WebClient) {
+    this.client = client;
   }
 
   async get(secretStoreName: string, key: string, metadata: string = ""): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/secrets/${secretStoreName}/${key}${metadata ? `?${metadata}` : ""}`);
+    const res = await this.client.execute(`/secrets/${secretStoreName}/${key}${metadata ? `?${metadata}` : ""}`);
     return ResponseUtil.handleResponse(res);
   }
 
   async getBulk(secretStoreName: string): Promise<object> {
-    const res = await fetch(`${this.daprUrl}/secrets/${secretStoreName}/bulk`, {
+    const res = await this.client.execute(`/secrets/${secretStoreName}/bulk`, {
       method: 'GET',
       headers: {
         "Content-Type": "application/json"

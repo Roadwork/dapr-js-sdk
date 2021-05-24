@@ -1,10 +1,10 @@
-import WebServer, { IRequest, IResponse, IServerType } from "./GRPCServer";
-import WebServerSingleton from "./GRPCServerSingleton";
+import GRPCServer, { IRequest, IResponse, IServerType } from "./GRPCServer";
+import GRPCServerImpl from "./GRPCServerImpl";
 
 export {
     IRequest,
     IResponse,
     IServerType,
-    WebServer,
-    WebServerSingleton
+    GRPCServer,
+    GRPCServerImpl
 }
