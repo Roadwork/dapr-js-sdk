@@ -124,7 +124,7 @@ async function start() {
   console.log(`[Dapr-JS][Example][Actors] Invoked Method and got data: ${JSON.stringify(resActorInvoke)}`);
 
   // const resActorStateGet = await clientActor.actor.stateGet("DemoActor", "MyActorId1", "PropertyA");
-  await client.actor.stateTransaction("DemoActor", "MyActorId1", [
+  await clientActor.actor.stateTransaction("DemoActor", "MyActorId1", [
     {
       operation: "upsert",
       request: {

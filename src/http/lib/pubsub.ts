@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import WebServerSingleton from "./WebServer/WebServerSingleton";
-import { TypeDaprPubSub, TypeElementOfDaprPubSub } from '../types/DaprPubSub.type';
+import { TypeDaprPubSubCallback } from '../types/DaprPubSubCallback.type';
 
 // https://docs.dapr.io/reference/api/pubsub_api/
 export default class DaprPubSub {
@@ -23,34 +23,24 @@ export default class DaprPubSub {
     return res.status;
   }
 
-  async subscribe(subs: TypeElementOfDaprPubSub[] = []) {
+  async subscribe(pubsubName: string, topic: string, cb: TypeDaprPubSubCallback, route: string = "") {
     const server = await WebServerSingleton.getServer();
+    const serverImpl = await WebServerSingleton.getServerImpl();
 
+    if (!route) {
+      route = `route-${pubsubName}-${topic}`;
+    }
 
-    await Promise.all(subs.map((sub: TypeElementOfDaprPubSub, i) => {
+    // Register the handler
+    await serverImpl.registerPubSubSubscriptionRoute(pubsubName, topic, route);
 
-      server.post(`/${sub.route}`, async (req, res) => {
-        console.log(`[Dapr API][PubSub][route-${sub.topic}] Handling incoming message`);
+    server.post(`/${route}`, async (req, res) => {
+      // Process our callback
+      await cb(req?.body);
 
-        // Process our callback
-        await sub.cb(req, res);
-
-        // Let Dapr know that the message was processed correctly
-        // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
-        return res.send({ success: true });
-      });
-    }));
-
-    server.get('/dapr/subscribe', (req, res) => {
-      console.log(`[Dapr API][PubSub] Registering`);
-      let subsCopy: TypeElementOfDaprPubSub[] = JSON.parse(JSON.stringify(subs));
-      subsCopy = subsCopy.map((row: TypeElementOfDaprPubSub) => {
-        row.cb = null;
-        return row
-      })
-      res.send(subsCopy);
+      // Let Dapr know that the message was processed correctly
+      // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
+      return res.send({ success: true });
     });
-
-
   }
 }

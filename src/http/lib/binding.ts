@@ -41,7 +41,7 @@ export default class DaprBinding {
   }
 
   // Send an event to an external system
-  async send(bindingName: string, operation: string, data: any, metadata: object): Promise<object> {
+  async send(bindingName: string, operation: string, data: any, metadata: object = {}): Promise<object> {
     const res = await fetch(`${this.daprUrl}/bindings/${bindingName}`, {
       method: 'POST',
       headers: {
