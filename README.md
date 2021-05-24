@@ -4,6 +4,27 @@ This is an unofficial [Dapr](https://dapr.io) Node.js SDK that allows interfacin
 
 > **Note:** This library is not ready for production yet
 
+## Examples
+
+For an example of the library, see the [Examples folder](/examples)
+
+## Usage - Simple PubSub Listener
+
+To create a simply pub sub listener, we can now execute the following:
+
+```javascript
+import { DaprClient, DaprServer } from "@roadwork/dapr-js-sdk/grpc";
+
+// Subscribe
+const server = new DaprServer(daprHost, daprPort, daprInternalServerPort);
+server.pubsub.subscribe("pubsub-name", "topic", async (data: any) => console.log(data))
+await server.startServer();
+
+// Publish
+const client = new DaprClient(daprHost, daprPort);
+client.pubsub.publish("pubsub-name", "topic", { hello: "world" });
+```
+
 ## Usage
 
 We can utilize the library as shown in the code snippet below. Once implemented, start up your application with the `dapr run` command.
@@ -17,7 +38,9 @@ dapr run --app-id hello-world --app-port 4000 --dapr-http-port 3500 --components
 **Library:**
 
 ```javascript
-import Dapr, { HttpMethod, HttpStatusCode, Req, Res } from "@roadwork/dapr-js-sdk/http";
+import { DaprClient, DaprServer } from "@roadwork/dapr-js-sdk/http";
+// OR (depending on the protocol)
+import { DaprClient, DaprServer } from "@roadwork/dapr-js-sdk/grpc";
 
 // Dapr ConnectionInfo
 // daprUrl: the url to the Dapr Sidecar
@@ -32,14 +55,18 @@ const daprPort = 3500;
 // Note 2: you can also set this port through the environment variable DAPR_INTERNAL_SERVER_PORT
 const daprInternalServerPort = 4000; 
 
-const client = new Dapr(daprHost, daprPort, daprInternalServerPort);
-await client.startClient(); // start the client to interact with the Dapr Sidecar
-await client.startServer(); // start the internal server
+const client = new DaprClient(daprHost, daprPort);
+const server = new DaprServer(daprHost, daprPort, daprInternalServerPort);
+
+// NOTE: This has to be executed AFTER all server calls are done.
+// This is due to Dapr requiring that routes are registered before the server is started
+// See the Usage - Simple PubSub Listener for more information
+await server.startServer(); // start the internal server
 
 // Pub / Sub
 // Note: /dapr/subscribe will be called on the provided "daprInternalServerPort". 
 // if you are running an extra HTTP server, make sure to utilize a different port. Dapr will not wait till your app started, which is not required since the library takes care of Dapr related functionality internally.
-client.pubsub.subscribe("pubsub-name", "topic", async (data: any) => console.log(data))
+server.pubsub.subscribe("pubsub-name", "topic", async (data: any) => console.log(data))
 await client.pubsub.publish("pubsub-name", "topic", { hello: "world" });
 
 // State
