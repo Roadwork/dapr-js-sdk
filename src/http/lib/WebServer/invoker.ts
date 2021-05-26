@@ -15,6 +15,7 @@ export default class DaprServerInvoker {
     const serverMethod: HttpMethod = options?.method?.toLowerCase() as HttpMethod || HttpMethod.GET;
 
     const server = await this.server.getServer();
+    //@TODO should pass rest of headers to callback
     server[serverMethod](`/${methodName}`, async (req, res) => {
       const invokeResponse = await cb({
         body: JSON.stringify(req.body),
@@ -25,6 +26,8 @@ export default class DaprServerInvoker {
       });
       
       // Make sure we close the request after the callback
+      //@TODO this should send header and http status code to client (same as grpc)
+      
       if (!res.writableEnded) {
         if (invokeResponse) {
           return res.end(JSON.stringify(invokeResponse));
