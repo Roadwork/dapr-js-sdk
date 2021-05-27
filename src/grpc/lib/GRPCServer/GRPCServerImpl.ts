@@ -47,7 +47,8 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const handlerKey = this.createInputBindingHandlerKey(bindingName);
         this.handlersBindings[handlerKey] = cb;
     }
-
+    //@TODO currently Grpc call dosent work with url params, but htt dose, can we use http router in 
+    //method finding of grpc and pass params with data ? for ex: /user/:id
     async onInvoke(call: grpc.ServerUnaryCall<InvokeRequest, InvokeResponse>, callback: grpc.sendUnaryData<InvokeResponse>): Promise<void> {
         const method = call.request.getMethod();
         const query = (call.request.getHttpExtension() as HTTPExtension).toObject();
