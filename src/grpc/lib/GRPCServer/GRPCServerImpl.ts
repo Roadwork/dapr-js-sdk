@@ -54,6 +54,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const methodStr = HttpVerbUtil.convertHttpVerbNumberToString(query.verb);
         const handlersInvokeKey = `${methodStr.toLowerCase()}|${method.toLowerCase()}`;
 
+        //@TODO we should return Grpc error, just return will keep connection open without error to user
         if (!this.handlersInvoke[handlersInvokeKey]) {
             console.warn(`[Dapr-JS][gRPC][Invoke] ${methodStr} /${method} was not handled`);
             return;
@@ -92,6 +93,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const req = call.request;
         const handlerKey = this.createInputBindingHandlerKey(req.getName());
         
+        //@TODO we should return Grpc error, just return will keep connection open without error to user
         if (!this.handlersBindings[handlerKey]) {
             console.warn(`[Dapr-JS][gRPC][Bindings] Event for binding: "${handlerKey}" was not handled`);
             return;
@@ -111,6 +113,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const req = call.request;
         const handlerKey = this.createPubSubSubscriptionHandlerKey(req.getPubsubName(), req.getTopic());
         
+        //@TODO we should return Grpc error, just return will keep connection open without error to user
         if (!this.handlersTopics[handlerKey]) {
             console.warn(`[Dapr-JS][gRPC][PubSub] Event from topic: "${handlerKey}" was not handled`);
             return;
