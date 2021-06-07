@@ -63,6 +63,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const contentType = call.request.getContentType();
 
         // Invoke the Method Callback
+        //@TODO add call.metadata, it has headers of original HTTP request.
         const invokeResponseData = await this.handlersInvoke[handlersInvokeKey]({
             body,
             query: query.querystring,
@@ -80,6 +81,8 @@ export default class GRPCServerImpl implements IAppCallbackServer {
             msgSerialized.setValue(Buffer.from(JSON.stringify(invokeResponseData), "utf-8"));
             res.setData(msgSerialized);
         }
+        //@TODO add Error Handleling, for ex if service returned error with status code
+        // also maybe we can map GRPC error codes in a enum
 
         return callback(null, res);
     }
