@@ -47,13 +47,15 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const handlerKey = this.createInputBindingHandlerKey(bindingName);
         this.handlersBindings[handlerKey] = cb;
     }
-
+    //@TODO currently Grpc call dosent work with url params, but htt dose, can we use http router in 
+    //method finding of grpc and pass params with data ? for ex: /user/:id
     async onInvoke(call: grpc.ServerUnaryCall<InvokeRequest, InvokeResponse>, callback: grpc.sendUnaryData<InvokeResponse>): Promise<void> {
         const method = call.request.getMethod();
         const query = (call.request.getHttpExtension() as HTTPExtension).toObject();
         const methodStr = HttpVerbUtil.convertHttpVerbNumberToString(query.verb);
         const handlersInvokeKey = `${methodStr.toLowerCase()}|${method.toLowerCase()}`;
 
+        //@TODO we should return Grpc error, just return will keep connection open without error to user
         if (!this.handlersInvoke[handlersInvokeKey]) {
             console.warn(`[Dapr-JS][gRPC][Invoke] ${methodStr} /${method} was not handled`);
             return;
@@ -92,6 +94,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const req = call.request;
         const handlerKey = this.createInputBindingHandlerKey(req.getName());
         
+        //@TODO we should return Grpc error, just return will keep connection open without error to user
         if (!this.handlersBindings[handlerKey]) {
             console.warn(`[Dapr-JS][gRPC][Bindings] Event for binding: "${handlerKey}" was not handled`);
             return;
@@ -111,6 +114,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const req = call.request;
         const handlerKey = this.createPubSubSubscriptionHandlerKey(req.getPubsubName(), req.getTopic());
         
+        //@TODO we should return Grpc error, just return will keep connection open without error to user
         if (!this.handlersTopics[handlerKey]) {
             console.warn(`[Dapr-JS][gRPC][PubSub] Event from topic: "${handlerKey}" was not handled`);
             return;

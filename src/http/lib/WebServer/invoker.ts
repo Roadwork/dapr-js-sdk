@@ -15,7 +15,8 @@ export default class DaprServerInvoker {
     const serverMethod: HttpMethod = options?.method?.toLowerCase() as HttpMethod || HttpMethod.GET;
 
     const server = await this.server.getServer();
-    //@TODO should pass rest of headers to callback
+    //@TODO should pass rest of headers to callback and we can seperate params with query, bkz
+    //restana accepts url params
     server[serverMethod](`/${methodName}`, async (req, res) => {
       const invokeResponse = await cb({
         body: JSON.stringify(req.body),
