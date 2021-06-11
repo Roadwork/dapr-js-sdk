@@ -128,6 +128,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
             res.setStatus(TopicEventResponse.TopicEventResponseStatus.SUCCESS);
         } catch (e) {
             // @todo: for now we drop, maybe we should allow retrying as well more easily?
+            console.error(e);
             res.setStatus(TopicEventResponse.TopicEventResponseStatus.DROP);
         }
 
