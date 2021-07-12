@@ -78,7 +78,7 @@ export default class WebServer {
         // Initialize Server Listener
         await this.server.start(parseInt(port, 10));
         console.log(`[Dapr-JS] Listening on ${port}`);
-        this.serverAddress = `http://127.0.0.1:${port}`;
+        this.serverAddress = `http://${host}:${port}`;
 
         // Add PubSub Routes
         console.log(`[Dapr API][PubSub] Registering ${this.serverImpl.pubSubSubscriptionRoutes.length} PubSub Subscriptions`);

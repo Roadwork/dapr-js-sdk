@@ -15,7 +15,6 @@ export default class DaprServerBinding {
   async receive(bindingName: string, cb: FunctionDaprInputCallback) {
     const server = await this.server.getServer();
 
-    console.log(`[Binding] Listening on /${bindingName}`);
     server.post(`/${bindingName}`, async (req, res) => {
       req.setTimeout(60 * 1000); // amount of seconds to wait for the request CB to finalize
 

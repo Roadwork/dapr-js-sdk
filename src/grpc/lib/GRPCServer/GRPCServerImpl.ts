@@ -1,4 +1,4 @@
-import * as grpc from "@grpc/grpc-js";
+import * as grpc from "grpc";
 import { IAppCallbackServer } from "../../proto/dapr/proto/runtime/v1/appcallback_grpc_pb";
 import { HTTPExtension, InvokeRequest, InvokeResponse } from '../../proto/dapr/proto/common/v1/common_pb';
 import { TypeDaprInvokerCallback } from "../../types/DaprInvokerCallback.type";
@@ -48,7 +48,10 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         this.handlersBindings[handlerKey] = cb;
     }
 
-    async onInvoke(call: grpc.ServerUnaryCall<InvokeRequest, InvokeResponse>, callback: grpc.sendUnaryData<InvokeResponse>): Promise<void> {
+    // '(call: ServerUnaryCall<InvokeRequest, InvokeResponse>, callback: sendUnaryData<InvokeResponse>) => Promise<...>'
+    // handleUnaryCall<InvokeRequest, InvokeResponse>'.
+
+    async onInvoke(call: grpc.ServerUnaryCall<InvokeRequest>, callback: grpc.sendUnaryData<InvokeResponse>): Promise<void> {
         const method = call.request.getMethod();
         const query = (call.request.getHttpExtension() as HTTPExtension).toObject();
         const methodStr = HttpVerbUtil.convertHttpVerbNumberToString(query.verb);
@@ -63,7 +66,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         const contentType = call.request.getContentType();
 
         // Invoke the Method Callback
-        //@TODO add call.metadata, it has headers of original HTTP request.
+        // @TODO add call.metadata, it has headers of original HTTP request.
         const invokeResponseData = await this.handlersInvoke[handlersInvokeKey]({
             body,
             query: query.querystring,
@@ -81,14 +84,14 @@ export default class GRPCServerImpl implements IAppCallbackServer {
             msgSerialized.setValue(Buffer.from(JSON.stringify(invokeResponseData), "utf-8"));
             res.setData(msgSerialized);
         }
-        //@TODO add Error Handleling, for ex if service returned error with status code
+        // @TODO add Error Handleling, for ex if service returned error with status code
         // also maybe we can map GRPC error codes in a enum
 
         return callback(null, res);
     }
 
     // @todo: WIP
-    async onBindingEvent(call: grpc.ServerUnaryCall<BindingEventRequest, BindingEventResponse>, callback: grpc.sendUnaryData<BindingEventResponse>): Promise<void> {
+    async onBindingEvent(call: grpc.ServerUnaryCall<BindingEventRequest>, callback: grpc.sendUnaryData<BindingEventResponse>): Promise<void> {
         const req = call.request;
         const handlerKey = this.createInputBindingHandlerKey(req.getName());
         
@@ -107,7 +110,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
     }
 
     // @todo: WIP
-    async onTopicEvent(call: grpc.ServerUnaryCall<TopicEventRequest, TopicEventResponse>, callback: grpc.sendUnaryData<TopicEventResponse>): Promise<void> {
+    async onTopicEvent(call: grpc.ServerUnaryCall<TopicEventRequest>, callback: grpc.sendUnaryData<TopicEventResponse>): Promise<void> {
         const req = call.request;
         const handlerKey = this.createPubSubSubscriptionHandlerKey(req.getPubsubName(), req.getTopic());
         
@@ -132,7 +135,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
     }
 
     // @todo: WIP
-    async listTopicSubscriptions(call: grpc.ServerUnaryCall<Empty, ListTopicSubscriptionsResponse>, callback: grpc.sendUnaryData<ListTopicSubscriptionsResponse>): Promise<void> {
+    async listTopicSubscriptions(call: grpc.ServerUnaryCall<Empty>, callback: grpc.sendUnaryData<ListTopicSubscriptionsResponse>): Promise<void> {
         const res = new ListTopicSubscriptionsResponse();
 
         const values = Object.keys(this.handlersTopics).map((i) => {
@@ -151,7 +154,7 @@ export default class GRPCServerImpl implements IAppCallbackServer {
     }
 
     // @todo: WIP
-    async listInputBindings(call: grpc.ServerUnaryCall<Empty, ListInputBindingsResponse>, callback: grpc.sendUnaryData<ListInputBindingsResponse>): Promise<void> {
+    async listInputBindings(call: grpc.ServerUnaryCall<Empty>, callback: grpc.sendUnaryData<ListInputBindingsResponse>): Promise<void> {
         const res = new ListInputBindingsResponse();
         res.setBindingsList(Object.keys(this.handlersBindings));
         return callback(null, res);
