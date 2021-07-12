@@ -1,24 +1,29 @@
-import DaprServerBinding from './lib/GRPCServer/binding';
-import DaprServerPubSub from './lib/GRPCServer/pubsub';
-import DaprServerInvoker from './lib/GRPCServer/invoker';
-import DaprServerActor from './lib/GRPCServer/actor';
-import GRPCServer from './lib/GRPCServer/GRPCServer';
+import IServerInvokerStrategy from '../strategies/IServerInvokerStrategy';
+import IServerBindingStrategy from '../strategies/IServerBindingStrategy';
+import IServerPubSubStrategy from '../strategies/IServerPubSubStrategy';
+
+import GRPCServerStrategy from '../strategies/GRPCServer/GRPCServer';
+
+import GRPCServerPubSubStrategy from '../strategies/GRPCServer/pubsub';
+import GRPCServerBindingStrategy from '../strategies/GRPCServer/binding';
+import GRPCServerInvokerStrategy from '../strategies/GRPCServer/invoker';
 
 export default class DaprServer {
   daprHost: string;
   daprPort: string;
-  daprInternalServerPort: string; // The port for our app server (e.g. dapr binding receives, pubsub receive, ...)\
-  daprServer: GRPCServer;
-  pubsub: DaprServerPubSub;
-  binding: DaprServerBinding;
-  invoker: DaprServerInvoker;
-  actor: DaprServerActor;
+  daprPortApp: string; // The port for our app server (e.g. dapr binding receives, pubsub receive, ...)\
+  daprServer: GRPCServerStrategy;
 
-  constructor(daprHost: string, daprPort: string, daprInternalServerPort: string = "50050") {
+  pubsub: IServerPubSubStrategy;
+  binding: IServerBindingStrategy;
+  invoker: IServerInvokerStrategy;
+
+  constructor(daprHost: string, daprPort: string, daprPortApp: string = "50050") {
     this.daprHost = daprHost || '127.0.0.1';
     this.daprPort = daprPort || "5005";
-    this.daprInternalServerPort = process.env.DAPR_INTERNAL_SERVER_PORT || daprInternalServerPort;
-    this.daprServer = new GRPCServer();
+
+    this.daprPortApp = process.env.DAPR_INTERNAL_SERVER_PORT || daprPortApp;
+    this.daprServer = new GRPCServerStrategy();
 
     // If DAPR_INTERNAL_SERVER_PORT was not set, we set it
     // This will be fetched by the GRPCServerSingleton
@@ -28,13 +33,12 @@ export default class DaprServer {
     // const randomPort = Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000;
     // const appPort = parseInt(process.env.DAPR_INTERNAL_SERVER_PORT || "", 10) || randomPort;
 
-    this.pubsub = new DaprServerPubSub(this.daprServer);
-    this.binding = new DaprServerBinding(this.daprServer);
-    this.invoker = new DaprServerInvoker(this.daprServer);
-    this.actor = new DaprServerActor(this.daprServer);
+    this.pubsub = new GRPCServerPubSubStrategy(this.daprServer);
+    this.binding = new GRPCServerBindingStrategy(this.daprServer);
+    this.invoker = new GRPCServerInvokerStrategy(this.daprServer);
   }
 
   async startServer() {
-    await this.daprServer.startServer(this.daprHost, this.daprInternalServerPort.toString());
+    await this.daprServer.startServer(this.daprHost, this.daprPortApp.toString());
   }
 }
