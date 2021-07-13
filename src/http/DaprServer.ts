@@ -8,10 +8,9 @@ import HTTPServerPubSubStrategy from '../strategies/HTTPServer/pubsub';
 import HTTPServerBindingStrategy from '../strategies/HTTPServer/binding';
 import HTTPServerInvokerStrategy from '../strategies/HTTPServer/invoker';
 
-export default class DaprServer {
-  daprHost: string;
-  daprPort: string;
-  daprPortApp: string; // The port for our app server (e.g. dapr binding receives, pubsub receive, ...)\
+import ADaprServer from '../abstract/ADaprServer';
+
+export default class DaprServer extends ADaprServer {
   daprServer: HTTPServerStrategy;
 
   pubsub: IServerPubSubStrategy;
@@ -19,8 +18,7 @@ export default class DaprServer {
   invoker: IServerInvokerStrategy;
 
   constructor(daprHost: string, daprPort: string, daprPortApp: string = "50050") {
-    this.daprHost = daprHost || '127.0.0.1';
-    this.daprPort = daprPort || "5005";
+    super(daprHost, daprPort, daprPortApp);
 
     this.daprPortApp = process.env.DAPR_INTERNAL_SERVER_PORT || daprPortApp;
     this.daprServer = new HTTPServerStrategy();

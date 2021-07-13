@@ -8,10 +8,9 @@ import GRPCServerPubSubStrategy from '../strategies/GRPCServer/pubsub';
 import GRPCServerBindingStrategy from '../strategies/GRPCServer/binding';
 import GRPCServerInvokerStrategy from '../strategies/GRPCServer/invoker';
 
-export default class DaprServer {
-  daprHost: string;
-  daprPort: string;
-  daprPortApp: string; // The port for our app server (e.g. dapr binding receives, pubsub receive, ...)\
+import ADaprServer from '../abstract/ADaprServer';
+
+export default class DaprServer extends ADaprServer {
   daprServer: GRPCServerStrategy;
 
   pubsub: IServerPubSubStrategy;
@@ -19,10 +18,8 @@ export default class DaprServer {
   invoker: IServerInvokerStrategy;
 
   constructor(daprHost: string, daprPort: string, daprPortApp: string = "50050") {
-    this.daprHost = daprHost || '127.0.0.1';
-    this.daprPort = daprPort || "5005";
+    super(daprHost, daprPort, daprPortApp);
 
-    this.daprPortApp = process.env.DAPR_INTERNAL_SERVER_PORT || daprPortApp;
     this.daprServer = new GRPCServerStrategy();
 
     // If DAPR_INTERNAL_SERVER_PORT was not set, we set it
