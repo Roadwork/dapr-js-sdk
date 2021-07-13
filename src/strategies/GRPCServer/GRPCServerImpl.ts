@@ -101,7 +101,16 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         }
 
         const data = Buffer.from(req.getData()).toString();
-        await this.handlersBindings[handlerKey](data);
+        
+        let dataParsed;
+
+        try {
+            dataParsed = JSON.parse(data);
+        } catch (e) {
+            dataParsed = data;
+        }
+
+        await this.handlersBindings[handlerKey](dataParsed);
 
         // @todo: we should add the state store or output binding binding
         // see: https://docs.dapr.io/reference/api/bindings_api/#binding-endpoints
@@ -120,10 +129,18 @@ export default class GRPCServerImpl implements IAppCallbackServer {
         }
 
         const data = Buffer.from(req.getData()).toString();
+        let dataParsed;
+
+        try {
+            dataParsed = JSON.parse(data);
+        } catch (e) {
+            dataParsed = data;
+        }
+
         const res = new TopicEventResponse();
 
         try {
-            await this.handlersTopics[handlerKey](data);
+            await this.handlersTopics[handlerKey](dataParsed);
             res.setStatus(TopicEventResponse.TopicEventResponseStatus.SUCCESS);
         } catch (e) {
             // @todo: for now we drop, maybe we should allow retrying as well more easily?

@@ -28,9 +28,14 @@ describe('http', () => {
             const client = new DaprClient(daprHost, daprPort);
             await client.binding.send("binding-mqtt", "create", { hello: "world" });
 
+            
             // Delay a bit for event to arrive
             await new Promise((resolve, reject) => setTimeout(resolve, 250));
             expect(mockBindingReceive.mock.calls.length).toBe(1);
+            
+            // Also test for receiving data
+            // @ts-ignore
+            expect(mockBindingReceive.mock.calls[0][0]["hello"]).toEqual("world");
         })
     });
 
@@ -43,6 +48,10 @@ describe('http', () => {
             await new Promise((resolve, reject) => setTimeout(resolve, 250));
 
             expect(mockPubSubSubscribe.mock.calls.length).toBe(1);
+
+            // Also test for receiving data
+            // @ts-ignore
+            expect(mockPubSubSubscribe.mock.calls[0][0]["hello"]).toEqual("world");
         })
     });
 
