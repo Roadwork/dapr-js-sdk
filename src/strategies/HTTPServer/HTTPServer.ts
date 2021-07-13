@@ -7,7 +7,7 @@ import IServerStrategy from "../IServerStrategy";
 // tslint:disable-next-line
 export interface IServerImplType extends HTTPServerImpl { };
 // tslint:disable-next-line
-export interface IServerType extends Restana.Service<Restana.Protocol.HTTP> {};
+export interface IServerType extends Restana.Service<Restana.Protocol.HTTP> { };
 // tslint:disable-next-line
 export interface IRequest extends http.IncomingMessage, Restana.RequestExtensions { };
 // tslint:disable-next-line
@@ -28,10 +28,28 @@ export default class HTTPServer implements IServerStrategy {
         this.isInitialized = false;
 
         this.server = Restana();
-        this.server.use(bodyParser.json());
+        this.server.use(bodyParser.json({
+            type: [
+                "application/json",
+
+                // Support cloudevents 
+                // https://github.com/cloudevents/spec/blob/v1.0.1/json-format.md
+                "application/cloudevents+json",
+                "application/*+json",
+            ]
+        }));
+
+        // body-parser is not async compatible, so we have to make it
+        // this.server.use((req, res, next) => {
+        //     return new Promise(resolve => {
+        //         bodyParser.json()(req, res, (err) => {
+        //             return resolve(next(err))
+        //         })
+        //     })
+        // })
 
         this.serverImpl = new HTTPServerImpl();
-        
+
         this.serverAddress = "";
     }
 

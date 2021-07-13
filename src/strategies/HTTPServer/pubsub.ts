@@ -17,10 +17,11 @@ export default class DaprServerPubSub implements IServerPubSubStrategy {
 
     // Register the handler
     await this.server.getServerImpl().registerPubSubSubscriptionRoute(pubsubName, topic, route);
-
+ 
     this.server.getServer().post(`/${route}`, async (req, res) => {
       // Process our callback
-      await cb(req?.body);
+      // @ts-ignore
+      await cb(req?.body?.data);
 
       // Let Dapr know that the message was processed correctly
       // console.log(`[Dapr API][PubSub][route-${topic}] Ack'ing the message`);
