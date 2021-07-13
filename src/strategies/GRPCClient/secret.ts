@@ -23,10 +23,11 @@ export default class DaprSecret implements IClientSecretStrategy {
                     return reject(err);
                 }
 
-                // https://docs.dapr.io/reference/api/secrets_api/#response-body
-                // @ts-ignore
-                // tslint:disable-next-line
-                return resolve(res.getDataMap()["map_"]);
+                // Convert [ [ 'TEST_SECRET_1', 'secret_val_1' ] ] => [ { TEST_SECRET_1: 'secret_val_1' } ]
+                const items = res.getDataMap().getEntryList().map((item) => ({ [item[0]]: item[1] }));
+
+                // Return first item (it's a single get)
+                return resolve(items[0]);
             });
         })
     }

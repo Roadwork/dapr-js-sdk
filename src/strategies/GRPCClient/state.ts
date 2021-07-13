@@ -1,10 +1,11 @@
-import { IKeyValuePair } from '../../types/KeyValuePair.type';
+import { KeyValuePairType } from '../../types/KeyValuePair.type';
 import { OperationType } from '../../types/Operation.type';
 import { IRequestMetadata } from '../../types/RequestMetadata.type';
 import { DeleteStateRequest, ExecuteStateTransactionRequest, GetBulkStateRequest, GetBulkStateResponse, GetStateRequest, GetStateResponse, SaveStateRequest, TransactionalStateOperation } from '../../proto/dapr/proto/runtime/v1/dapr_pb';
 import { Etag, StateItem, StateOptions } from '../../proto/dapr/proto/common/v1/common_pb';
 import GRPCClient from './GRPCClient';
 import IClientStateStrategy from '../IClientStateStrategy';
+import { KeyValueType } from '../../types/KeyValue.type';
 
 // https://docs.dapr.io/reference/api/state_api/
 export default class GRPCClientStateStrategy implements IClientStateStrategy {
@@ -14,7 +15,7 @@ export default class GRPCClientStateStrategy implements IClientStateStrategy {
         this.client = client;
     }
 
-    async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<void> {
+    async save(storeName: string, stateObjects: KeyValuePairType[]): Promise<void> {
         const stateList = [];
 
         for (const stateObject of stateObjects) {
@@ -41,7 +42,7 @@ export default class GRPCClientStateStrategy implements IClientStateStrategy {
         });
     }
 
-    async get(storeName: string, key: string): Promise<object> {
+    async get(storeName: string, key: string): Promise<KeyValueType | string> {
         const msgService = new GetStateRequest();
         msgService.setStoreName(storeName);
         msgService.setKey(key)
@@ -57,15 +58,19 @@ export default class GRPCClientStateStrategy implements IClientStateStrategy {
                 }
 
                 // https://docs.dapr.io/reference/api/state_api/#http-response-1
-                return resolve({
-                    data: Buffer.from(res.getData()).toString(),
-                    metadata: res.getMetadataMap()
-                });
+                const resData = Buffer.from(res.getData()).toString();
+
+                try {
+                    const json = JSON.parse(resData);
+                    return resolve(json);
+                } catch (e) {
+                    return resolve(resData);
+                }
             });
         })
     }
 
-    async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
+    async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<KeyValueType[]> {
         const msgService = new GetBulkStateRequest();
         msgService.setStoreName(storeName);
         msgService.setKeysList(keys);

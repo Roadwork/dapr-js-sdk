@@ -1,4 +1,4 @@
-export type IKeyValuePair = {
+export type KeyValuePairType= {
   key: string;
   value: string;
 }

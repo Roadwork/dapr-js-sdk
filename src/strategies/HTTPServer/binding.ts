@@ -16,6 +16,10 @@ export default class DaprServerBinding implements IServerBindingStrategy {
   async receive(bindingName: string, cb: FunctionDaprInputCallback) {
     const server = await this.server.getServer();
 
+    server.options(`/${bindingName}`, (req, res) => {
+      return res.end();
+    });
+
     server.post(`/${bindingName}`, async (req, res) => {
       req.setTimeout(60 * 1000); // amount of seconds to wait for the request CB to finalize
 

@@ -6,6 +6,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Any } from "google-protobuf/google/protobuf/any_pb";
 import GRPCClient from './GRPCClient';
 import IClientActorStrategy from '../IClientActorStrategy';
+import { KeyValueType } from '../../types/KeyValue.type';
 
 // https://docs.dapr.io/reference/api/actors_api/
 export default class DaprActor implements IClientActorStrategy {
@@ -77,7 +78,7 @@ export default class DaprActor implements IClientActorStrategy {
         });
     }
 
-    async stateGet(actorType: string, actorId: string, key: string): Promise<object> {
+    async stateGet(actorType: string, actorId: string, key: string): Promise<KeyValueType | string> {
         const msgService = new GetActorStateRequest();
         msgService.setActorType(actorType);
         msgService.setActorId(actorId)
@@ -94,9 +95,10 @@ export default class DaprActor implements IClientActorStrategy {
                 const resData = Buffer.from(res.getData()).toString();
 
                 try {
-                    return resolve(JSON.parse(resData));
+                    const json = JSON.parse(resData);
+                    return resolve(json);
                 } catch (e) {
-                    return resolve(resData as any);
+                    return resolve(resData);
                 }
             });
         });

@@ -59,7 +59,7 @@ describe('grpc', () => {
             // await new Promise((resolve, reject) => setTimeout(resolve, 250));
 
             expect(mock.mock.calls.length).toBe(1);
-            expect(JSON.stringify(res)).toEqual(`{\"body\":\"{\\\"hello\\\":\\\"world\\\"}\",\"query\":\"\",\"metadata\":{\"contentType\":\"application/json\"}}`);
+            expect(JSON.stringify(res)).toEqual(`{\"hello\":\"world\"}`);
         })
 
         it('should be able to listen and invoke a service with POST data', async () => {
@@ -76,7 +76,7 @@ describe('grpc', () => {
             // await new Promise((resolve, reject) => setTimeout(resolve, 250));
 
             expect(mock.mock.calls.length).toBe(1);
-            expect(JSON.stringify(res)).toEqual(`{\"body\":\"{\\\"hello\\\":\\\"world\\\"}\",\"query\":\"\",\"metadata\":{\"contentType\":\"application/json\"}}`);
+            expect(JSON.stringify(res)).toEqual(`{\"hello\":\"world\"}`);
         })
     });
 
@@ -84,7 +84,7 @@ describe('grpc', () => {
         it('should be able to correctly fetch the secrets by a single key', async () => {
             const client = new DaprClient(daprHost, daprPort);
             const res = await client.secret.get("secret-envvars", "TEST_SECRET_1");
-            expect(JSON.stringify(res)).toEqual(`{"TEST_SECRET_1":{"key":"TEST_SECRET_1","value":"secret_val_1"}}`);
+            expect(JSON.stringify(res)).toEqual(`{\"TEST_SECRET_1\":\"secret_val_1\"}`);
         });
 
         it('should be able to correctly fetch the secrets in bulk', async () => {
@@ -113,7 +113,7 @@ describe('grpc', () => {
             ]);
 
             const res = await client.state.get("state-redis", "key-1");
-            expect(JSON.stringify(res)).toEqual(`{\"data\":\"value-1\",\"metadata\":{\"arr_\":[],\"valueCtor_\":null,\"map_\":{},\"arrClean\":true}}`);
+            expect(res).toEqual("value-1");
         });
 
         it('should be able to get the state in bulk', async () => {
@@ -134,7 +134,11 @@ describe('grpc', () => {
             ]);
 
             const res = await client.state.getBulk("state-redis", ["key-3", "key-2"]);
-            expect(JSON.stringify(res)).toEqual(`[{\"key\":\"key-2\",\"data\":\"value-2\",\"etag\":\"2\"},{\"key\":\"key-3\",\"data\":\"value-3\",\"etag\":\"2\"}]`);
+
+            expect(res[0]["key"]).toEqual("key-2");
+            expect(res[0]["data"]).toEqual("value-2");
+            expect(res[1]["key"]).toEqual("key-3");
+            expect(res[1]["data"]).toEqual("value-3");
         });
 
         it('should be able to delete a key from the state store', async () => {
@@ -156,7 +160,7 @@ describe('grpc', () => {
 
             await client.state.delete("state-redis", "key-2");
             const res = await client.state.get("state-redis", "key-2");
-            expect(JSON.stringify(res)).toEqual(`{\"data\":\"\",\"metadata\":{\"arr_\":[],\"valueCtor_\":null,\"map_\":{},\"arrClean\":true}}`);
+            expect(res).toEqual("");
         });
 
         it('should be able to perform a transaction that replaces a key and deletes another', async () => {
@@ -179,8 +183,8 @@ describe('grpc', () => {
 
             const resTransactionDelete = await client.state.get("state-redis", "key-3");
             const resTransactionUpsert = await client.state.get("state-redis", "key-1");
-            expect(JSON.stringify(resTransactionDelete)).toEqual(`{\"data\":\"\",\"metadata\":{\"arr_\":[],\"valueCtor_\":null,\"map_\":{},\"arrClean\":true}}`);
-            expect(JSON.stringify(resTransactionUpsert)).toEqual(`{\"data\":\"my-new-data-1\",\"metadata\":{\"arr_\":[],\"valueCtor_\":null,\"map_\":{},\"arrClean\":true}}`);
+            expect(resTransactionDelete).toEqual("");
+            expect(resTransactionUpsert).toEqual("my-new-data-1");
         });
     });
 

@@ -1,10 +1,10 @@
-import ResponseUtil from '../../utils/Response.util';
-import { IKeyValuePair } from '../../types/KeyValuePair.type';
+import { KeyValuePairType } from '../../types/KeyValuePair.type';
 import { OperationType } from '../../types/Operation.type';
 import { IRequestMetadata } from '../../types/RequestMetadata.type';
 import HTTPClient from './HTTPClient';
 import IClientStateStrategy from '../IClientStateStrategy';
 import HttpStatusCode from '../../enum/HttpStatusCode.enum';
+import { KeyValueType } from '../../types/KeyValue.type';
 
 // https://docs.dapr.io/reference/api/state_api/
 export default class DaprClientState implements IClientStateStrategy {
@@ -14,7 +14,7 @@ export default class DaprClientState implements IClientStateStrategy {
     this.client = client;
   }
 
-  async save(storeName: string, stateObjects: IKeyValuePair[]): Promise<void> {
+  async save(storeName: string, stateObjects: KeyValuePairType[]): Promise<void> {
     const res = await this.client.execute(`/state/${storeName}`, {
       method: 'POST',
       headers: {
@@ -44,12 +44,42 @@ export default class DaprClientState implements IClientStateStrategy {
     }
   }
 
-  async get(storeName: string, key: string): Promise<object> {
+  async get(storeName: string, key: string): Promise<KeyValueType | string> {
     const res = await this.client.execute(`/state/${storeName}/${key}`);
-    return ResponseUtil.handleResponse(res);
+
+    switch (res.status) {
+      case HttpStatusCode.OK: {
+        try {
+          const json = await res.json();
+          return json;
+        } catch (e) {
+          const text = await res.text();
+          return text;
+        }
+      }
+      case HttpStatusCode.NO_CONTENT:
+        return ""; // empty response, key not found
+      case HttpStatusCode.BAD_REQUEST:
+        throw new Error(JSON.stringify({
+          error: "MALFORMED_REQUEST",
+          error_msg: `The request was malformed and failed, is the state store missing or misconfigured?`
+        }));
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<object> {
+  async getBulk(storeName: string, keys: string[], parallelism: number = 10, metadata: string = ""): Promise<KeyValueType[]> {
     const res = await this.client.execute(`/state/${storeName}/bulk${metadata ? `?${metadata}` : ""}`, {
       method: 'POST',
       headers: {
@@ -61,7 +91,29 @@ export default class DaprClientState implements IClientStateStrategy {
       })
     });
 
-    return ResponseUtil.handleResponse(res);
+    switch (res.status) {
+      case HttpStatusCode.OK: {
+        const json = await res.json();
+        return json;
+      }
+      case HttpStatusCode.BAD_REQUEST:
+        throw new Error(JSON.stringify({
+          error: "MALFORMED_REQUEST",
+          error_msg: `The request was malformed and failed, is the state store missing or misconfigured?`
+        }));
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
   async delete(storeName: string, key: string): Promise<void> {

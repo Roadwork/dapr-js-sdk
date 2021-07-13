@@ -1,10 +1,11 @@
-import ResponseUtil from '../../utils/Response.util';
 import { InvokeFetchOptions } from '../../types/InvokeFetchOptions';
 import { OperationType } from '../../types/Operation.type';
 import { ActorReminderType } from '../../types/ActorReminder.type';
 import { ActorTimerType } from '../../types/ActorTimer.type';
 import HTTPClient from './HTTPClient';
 import IClientActorStrategy from '../IClientActorStrategy';
+import HttpStatusCode from '../../enum/HttpStatusCode.enum';
+import { KeyValueType } from '../../types/KeyValue.type';
 
 // https://docs.dapr.io/reference/api/actors_api/
 export default class DaprClientActor implements IClientActorStrategy {
@@ -27,11 +28,29 @@ export default class DaprClientActor implements IClientActorStrategy {
     }
 
     const res = await this.client.execute(`/actors/${actorType}/${actorId}/method/${methodName}`, fetchOptions as object);
-    
-    return ResponseUtil.handleResponse(res);
+
+
+    switch (res.status) {
+      case HttpStatusCode.OK:
+        const json = await res.json();
+        return json;
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        // The status code from the upstream call
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async stateTransaction(actorType: string, actorId: string, operations: OperationType[]): Promise<object> {
+  async stateTransaction(actorType: string, actorId: string, operations: OperationType[]): Promise<void> {
     const res = await this.client.execute(`/actors/${actorType}/${actorId}/state`, {
       method: 'POST',
       headers: {
@@ -40,15 +59,60 @@ export default class DaprClientActor implements IClientActorStrategy {
       body: JSON.stringify(operations)
     });
 
-    return ResponseUtil.handleResponse(res);
+    switch (res.status) {
+      case HttpStatusCode.NO_CONTENT:
+        return;
+      case HttpStatusCode.BAD_REQUEST:
+        throw new Error(JSON.stringify({
+          error: "ACTOR_NOT_FOUND",
+          error_msg: "Could not find the actor"
+        }));
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async stateGet(actorType: string, actorId: string, key: string): Promise<object> {
+  async stateGet(actorType: string, actorId: string, key: string): Promise<KeyValueType | string> {
     const res = await this.client.execute(`/actors/${actorType}/${actorId}/state/${key}`);
-    return ResponseUtil.handleResponse(res);
+
+    switch (res.status) {
+      case HttpStatusCode.OK: {
+        const json = await res.json();
+        return json;
+      }
+      case HttpStatusCode.NO_CONTENT:
+        return ""; // key not found, response will be empty
+      case HttpStatusCode.BAD_REQUEST:
+        throw new Error(JSON.stringify({
+          error: "ACTOR_NOT_FOUND",
+          error_msg: `Could not find the given actor ${actorId}`
+        }));
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async reminderCreate(actorType: string, actorId: string, name: string, reminder: ActorReminderType): Promise<object> {
+  async reminderCreate(actorType: string, actorId: string, name: string, reminder: ActorReminderType): Promise<void> {
     const res = await this.client.execute(`/actors/${actorType}/${actorId}/reminders/${name}`, {
       method: 'POST',
       headers: {
@@ -56,23 +120,76 @@ export default class DaprClientActor implements IClientActorStrategy {
       },
       body: JSON.stringify(reminder),
     });
-    return ResponseUtil.handleResponse(res);
+
+    switch (res.status) {
+      case HttpStatusCode.NO_CONTENT:
+        return;
+      case HttpStatusCode.BAD_REQUEST:
+        throw new Error(JSON.stringify({
+          error: "ACTOR_NOT_FOUND",
+          error_msg: `Could not find the given actor ${actorId}`
+        }));
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
   async reminderGet(actorType: string, actorId: string, name: string): Promise<object> {
     const res = await this.client.execute(`/actors/${actorType}/${actorId}/reminders/${name}`);
-    return ResponseUtil.handleResponse(res);
+
+    switch (res.status) {
+      case HttpStatusCode.OK:
+        const json = await res.json();
+        return json;
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async reminderDelete(actorType: string, actorId: string, name: string): Promise<number> {
-    const req = await this.client.execute(`/actors/${actorType}/${actorId}/reminders/${name}`, {
+  async reminderDelete(actorType: string, actorId: string, name: string): Promise<void> {
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/reminders/${name}`, {
       method: 'DELETE',
     });
 
-    return req.status;
+    switch (res.status) {
+      case HttpStatusCode.NO_CONTENT:
+        return;
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async timerCreate(actorType: string, actorId: string, name: string, timer: ActorTimerType): Promise<object> {
+  async timerCreate(actorType: string, actorId: string, name: string, timer: ActorTimerType): Promise<void> {
     const res = await this.client.execute(`/actors/${actorType}/${actorId}/timers/${name}`, {
       method: 'POST',
       headers: {
@@ -80,27 +197,101 @@ export default class DaprClientActor implements IClientActorStrategy {
       },
       body: JSON.stringify(timer),
     });
-    return ResponseUtil.handleResponse(res);
+
+    switch (res.status) {
+      case HttpStatusCode.NO_CONTENT:
+        return;
+      case HttpStatusCode.BAD_REQUEST:
+        throw new Error(JSON.stringify({
+          error: "ACTOR_NOT_FOUND",
+          error_msg: `Could not find the given actor ${actorId}`
+        }));
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async timerDelete(actorType: string, actorId: string, name: string): Promise<number> {
-    const req = await this.client.execute(`/actors/${actorType}/${actorId}/timers/${name}`, {
+  async timerDelete(actorType: string, actorId: string, name: string): Promise<void> {
+    const res = await this.client.execute(`/actors/${actorType}/${actorId}/timers/${name}`, {
       method: 'DELETE',
     });
 
-    return req.status;
+    switch (res.status) {
+      case HttpStatusCode.NO_CONTENT:
+        return;
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
-  async deactivate(actorType: string, actorId: string): Promise<ResActorDeactivateDto> {
+  async deactivate(actorType: string, actorId: string): Promise<void> {
     const res = await this.client.execute(`/actors/${actorType}/${actorId}`, {
       method: 'DELETE',
     });
 
-    return ResponseUtil.handleResponse(res);
+    switch (res.status) {
+      case HttpStatusCode.NO_CONTENT:
+        return;
+      case HttpStatusCode.NOT_FOUND:
+        throw new Error(JSON.stringify({
+          error: "ACTOR_NOT_FOUND",
+          error_msg: `Could not find the given actor ${actorId}`
+        }));
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 
   async getActors(): Promise<object> {
     const res = await this.client.execute(`replace('/v1.0', '')}/dapr/config`);
-    return ResponseUtil.handleResponse(res);
+
+    switch (res.status) {
+      case HttpStatusCode.OK: {
+        const json = await res.json();
+        return json;
+      }
+      case HttpStatusCode.INTERNAL_SERVER_ERROR: {
+        const json = await res.json();
+        throw new Error(JSON.stringify({
+          error: "REQUEST_FAILED",
+          error_msg: `The request failed with error: ${json}`
+        }));
+      }
+      default:
+        throw new Error(JSON.stringify({
+          error: "UNKNOWN",
+          error_msg: `An unknown problem occured and we got the status ${res.statusCode} with response ${res}`
+        }));
+    }
   }
 }
