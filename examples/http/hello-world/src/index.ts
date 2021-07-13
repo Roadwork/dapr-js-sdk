@@ -18,7 +18,7 @@ async function start() {
   console.log("===============================================================");
   console.log("REGISTERING SERVER HANDLERS")
   console.log("===============================================================");
-  await server.binding.receive("binding-rabbitmq", async (data) => console.log(`[Dapr-JS][Example][Binding Receive] Got Data: ${JSON.stringify(data)}`));
+  await server.binding.receive("binding-mqtt", async (data) => console.log(`[Dapr-JS][Example][Binding Receive] Got Data: ${JSON.stringify(data)}`));
   await server.pubsub.subscribe("pubsub-redis", "test-topic", async (data) => console.log(`[Dapr-JS][Example][PubSub Subscribe] Got Data: ${JSON.stringify(data)}`));
 
   console.log("===============================================================");
@@ -56,8 +56,8 @@ async function start() {
   console.log("===============================================================");
   console.log("EXECUTING CLIENT - BINDING/PUBSUB");
   console.log("===============================================================");
-  await client.binding.send("binding-rabbitmq", "create", { hello: "world" });
-  console.log(`[Dapr-JS][Example][Binding] Executed Binding for binding-rabbitmq`);
+  await client.binding.send("binding-mqtt", "create", { hello: "world" });
+  console.log(`[Dapr-JS][Example][Binding] Executed Binding for binding-mqtt`);
   await client.pubsub.publish("pubsub-redis", "test-topic", { hello: "world" });
   console.log(`[Dapr-JS][Example][PubSub] Published to pubsub pubsub-redis on topic "test-topic"`);
 

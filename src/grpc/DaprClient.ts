@@ -1,33 +1,41 @@
-import DaprClientBinding from './lib/GRPCClient/binding';
-import DaprClientPubSub from './lib/GRPCClient/pubsub';
-import DaprClientState from './lib/GRPCClient/state';
-import DaprClientInvoker from './lib/GRPCClient/invoker';
-import DaprClientSecret from './lib/GRPCClient/secret';
-import DaprClientActor from './lib/GRPCClient/actor';
-import GRPCClient from './lib/GRPCClient/GRPCClient';
+import GRPCClientBindingStrategy from '../strategies/GRPCClient/binding';
+import GRPCClientPubSubStrategy from '../strategies/GRPCClient/pubsub';
+import GRPCClientStateStrategy from '../strategies/GRPCClient/state';
+import GRPCClientInvokerStrategy from '../strategies/GRPCClient/invoker';
+import GRPCClientSecretStrategy from '../strategies/GRPCClient/secret';
+import GRPCClientActorStrategy from '../strategies/GRPCClient/actor';
 
-export default class DaprClient {
-  daprHost: string;
-  daprPort: string;
-  daprClient: GRPCClient;
-  pubsub: DaprClientPubSub;
-  state: DaprClientState;
-  binding: DaprClientBinding;
-  invoker: DaprClientInvoker;
-  secret: DaprClientSecret;
-  actor: DaprClientActor;
+import IClientBindingStrategy from '../strategies/IClientBindingStrategy';
+import IClientPubSubStrategy from '../strategies/IClientPubSubStrategy';
+import IClientStateStrategy from '../strategies/IClientStateStrategy';
+import IClientInvokerStrategy from '../strategies/IClientInvokerStrategy';
+import IClientSecretStrategy from '../strategies/IClientSecretStrategy';
+import IClientActorStrategy from '../strategies/IClientActorStrategy';
+
+import GRPCClientStrategy from '../strategies/GRPCClient/GRPCClient';
+
+import ADaprClient from '../abstract/ADaprClient';
+
+export default class DaprClient extends ADaprClient {
+  daprClient: GRPCClientStrategy;
+
+  pubsub: IClientPubSubStrategy;
+  state: IClientStateStrategy;
+  binding: IClientBindingStrategy;
+  invoker: IClientInvokerStrategy;
+  secret: IClientSecretStrategy;
+  actor: IClientActorStrategy;
 
   constructor(daprHost: string, daprPort: string) {
-    this.daprHost = daprHost || '127.0.0.1';
-    this.daprPort = daprPort || "5005";
+    super(daprHost, daprPort);
 
-    this.daprClient = new GRPCClient(daprHost, daprPort);
+    this.daprClient = new GRPCClientStrategy(daprHost, daprPort);
 
-    this.state = new DaprClientState(this.daprClient);
-    this.pubsub = new DaprClientPubSub(this.daprClient);
-    this.binding = new DaprClientBinding(this.daprClient);
-    this.invoker = new DaprClientInvoker(this.daprClient);
-    this.secret = new DaprClientSecret(this.daprClient);
-    this.actor = new DaprClientActor(this.daprClient);
+    this.state = new GRPCClientStateStrategy(this.daprClient);
+    this.pubsub = new GRPCClientPubSubStrategy(this.daprClient);
+    this.binding = new GRPCClientBindingStrategy(this.daprClient);
+    this.invoker = new GRPCClientInvokerStrategy(this.daprClient);
+    this.secret = new GRPCClientSecretStrategy(this.daprClient);
+    this.actor = new GRPCClientActorStrategy(this.daprClient);
   }
 }

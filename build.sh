@@ -19,6 +19,7 @@ echo ""
 echo "Preparing Publish"
 cp package.json build/
 cp README.md build/
-cp -R ./src/grpc/proto/ ./build/grpc/proto
+mkdir -p ./build
+cp -R ./src/proto/ ./build
 
 # Copy Proto Files

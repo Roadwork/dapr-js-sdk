@@ -1,33 +1,41 @@
-import DaprClientBinding from './lib/WebClient/binding';
-import DaprClientPubSub from './lib/WebClient/pubsub';
-import DaprClientState from './lib/WebClient/state';
-import DaprClientInvoker from './lib/WebClient/invoker';
-import DaprClientSecret from './lib/WebClient/secret';
-import DaprClientActor from './lib/WebClient/actor';
-import WebClient from './lib/WebClient/WebClient';
+import HTTPClientBindingStrategy from '../strategies/HTTPClient/binding';
+import HTTPClientPubSubStrategy from '../strategies/HTTPClient/pubsub';
+import HTTPClientStateStrategy from '../strategies/HTTPClient/state';
+import HTTPClientInvokerStrategy from '../strategies/HTTPClient/invoker';
+import HTTPClientSecretStrategy from '../strategies/HTTPClient/secret';
+import HTTPClientActorStrategy from '../strategies/HTTPClient/actor';
 
-export default class DaprClient {
-  daprHost: string;
-  daprPort: string;
-  daprClient: WebClient;
-  pubsub: DaprClientPubSub;
-  state: DaprClientState;
-  binding: DaprClientBinding;
-  invoker: DaprClientInvoker;
-  secret: DaprClientSecret;
-  actor: DaprClientActor;
+import IClientBindingStrategy from '../strategies/IClientBindingStrategy';
+import IClientPubSubStrategy from '../strategies/IClientPubSubStrategy';
+import IClientStateStrategy from '../strategies/IClientStateStrategy';
+import IClientInvokerStrategy from '../strategies/IClientInvokerStrategy';
+import IClientSecretStrategy from '../strategies/IClientSecretStrategy';
+import IClientActorStrategy from '../strategies/IClientActorStrategy';
+
+import HTTPClientStrategy from '../strategies/HTTPClient/HTTPClient';
+
+import ADaprClient from '../abstract/ADaprClient';
+
+export default class DaprClient extends ADaprClient {
+  daprClient: HTTPClientStrategy;
+
+  pubsub: IClientPubSubStrategy;
+  state: IClientStateStrategy;
+  binding: IClientBindingStrategy;
+  invoker: IClientInvokerStrategy;
+  secret: IClientSecretStrategy;
+  actor: IClientActorStrategy;
 
   constructor(daprHost: string, daprPort: string) {
-    this.daprHost = daprHost || '127.0.0.1';
-    this.daprPort = daprPort || "5005";
+    super(daprHost, daprPort);
 
-    this.daprClient = new WebClient(daprHost, daprPort);
+    this.daprClient = new HTTPClientStrategy(daprHost, daprPort);
 
-    this.state = new DaprClientState(this.daprClient);
-    this.pubsub = new DaprClientPubSub(this.daprClient);
-    this.binding = new DaprClientBinding(this.daprClient);
-    this.invoker = new DaprClientInvoker(this.daprClient);
-    this.secret = new DaprClientSecret(this.daprClient);
-    this.actor = new DaprClientActor(this.daprClient);
+    this.state = new HTTPClientStateStrategy(this.daprClient);
+    this.pubsub = new HTTPClientPubSubStrategy(this.daprClient);
+    this.binding = new HTTPClientBindingStrategy(this.daprClient);
+    this.invoker = new HTTPClientInvokerStrategy(this.daprClient);
+    this.secret = new HTTPClientSecretStrategy(this.daprClient);
+    this.actor = new HTTPClientActorStrategy(this.daprClient);
   }
 }
