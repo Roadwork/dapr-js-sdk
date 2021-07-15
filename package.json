@@ -5,8 +5,7 @@
   "types": "http/index.d.ts",
   "scripts": {
     "test": "jest --runInBand",
-    "test:dapr:http": "TEST_SECRET_1=secret_val_1 TEST_SECRET_2=secret_val_2 dapr run --app-id test-suite --app-protocol http --app-port 50051 --dapr-http-port 50050 --components-path ./components npm run test 'test/http.test.ts'",
-    "test:dapr:grpc": "TEST_SECRET_1=secret_val_1 TEST_SECRET_2=secret_val_2 dapr run --app-id test-suite --app-protocol grpc --app-port 50051 --dapr-grpc-port 50050 --components-path ./components npm run test 'test/grpc.test.ts'",
+    "test:dapr": "TEST_SECRET_1=secret_val_1 TEST_SECRET_2=secret_val_2 dapr run --app-id test-suite --app-protocol grpc --app-port 50051 --dapr-grpc-port 50050 --components-path ./components npm run test 'test/main.test.ts'",
     "lint": "tslint -p tsconfig.json",
     "build": "npm run lint && tsc --outDir ./build/",
     "start:dev": "npm run build && nodemon --ext \".ts,.js\" --watch \"./src\" --exec \"npm run build\""
