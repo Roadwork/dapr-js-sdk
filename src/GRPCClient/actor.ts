@@ -110,7 +110,7 @@ export default class GRPCClientActor {
         msgService.setName(name);
 
         if (reminder.data) {
-            msgService.setData(Buffer.from(reminder.data, "utf-8"))
+            msgService.setData(reminder.data);
         }
 
         if (reminder.period) {
