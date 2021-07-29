@@ -1,12 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
-import ActorRuntime from '../../src/actors/runtime/ActorRuntime';
-
-import FakeSimpleActorImpl from '../actor/FakeSimpleActorImpl';
-import ActorRuntimeConfig from '../../src/actors/runtime/ActorRuntimeConfig';
 import { DaprClient } from '../../src';
+import ActorRuntime from '../../src/actors/runtime/ActorRuntime';
+import ActorRuntimeConfig from '../../src/actors/runtime/ActorRuntimeConfig';
+import ActorId from "../../src/actors/ActorId";
+import FakeSimpleActorImpl from '../actor/FakeSimpleActorImpl';
 import FakeSimpleTimerActorImpl from '../actor/FakeSimpleTimerActorImpl';
-
-const ACTOR_NAME = "MyGreatActor";
 
 describe('ActorRuntime', () => {
     let client: DaprClient;
@@ -73,8 +71,8 @@ describe('ActorRuntime', () => {
         const runtime = ActorRuntime.getInstance(client);
         await runtime.registerActor(FakeSimpleActorImpl);
 
-        const res = await runtime.invoke(FakeSimpleActorImpl.name, actorId, "sayMessage", "Hello World");
-        console.log(res);
+        const res = await runtime.invoke(FakeSimpleActorImpl.name, actorId, "sayMessage", Buffer.from("Hello World"));
+        expect(res[0].toString()).toEqual("Hello World");
     });
 
     it('should receive an error if the actor method does not exist', async () => {
@@ -88,5 +86,13 @@ describe('ActorRuntime', () => {
         } catch (e) {
             expect(e.message).toEqual(`{"error":"ACTOR_METHOD_DOES_NOT_EXIST","errorMsg":"The actor method 'someRandomMethod' does not exist on FakeSimpleActorImpl"}`);
         }
+    });
+
+    it('should be able to fire a reminder', async () => {
+        const actorId = new ActorId(uuidv4());
+    });
+
+    it('should be able to fire a timer', async () => {
+        const actorId = new ActorId(uuidv4());
     });
 })

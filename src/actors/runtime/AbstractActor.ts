@@ -1,8 +1,5 @@
-import { RegisterActorReminderRequest } from "../../proto/dapr/proto/runtime/v1/dapr_pb";
 import ActorId from "../ActorId";
-import ActorRuntimeContext from "./ActorRuntimeContext";
 import ActorStateManager from "./ActorStateManager";
-import ActorReminderData from "./ReminderData";
 
 /**
  * Represents the base class for actors.
@@ -22,7 +19,6 @@ import ActorReminderData from "./ReminderData";
  * }
  */
 export default abstract class AbstractActor {
-  // runtimeCtx: ActorRuntimeContext<any>;
   stateManager: ActorStateManager;
   id: ActorId;
   
@@ -34,7 +30,6 @@ export default abstract class AbstractActor {
    */
   constructor(id: ActorId) {
     this.id = id;
-    // this.runtimeCtx = ctx;
     this.stateManager = new ActorStateManager(this);
   }
 

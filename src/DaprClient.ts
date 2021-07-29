@@ -1,5 +1,3 @@
-import ADaprClient from './abstract/ADaprClient';
-
 import GRPCClientBinding from './GRPCClient/binding';
 import GRPCClientPubSub from './GRPCClient/pubsub';
 import GRPCClientState from './GRPCClient/state';

@@ -2,14 +2,15 @@ import { AbstractActor } from "../..";
 import DaprClient from "../../DaprClient";
 import Class from "../../types/Class";
 import ActorId from "../ActorId";
-import ActorMethodContext from "./ActorMethodContext";
 import { v4 as uuidv4 } from "uuid";
+import ActorReminderData from "./ActorReminderData";
+import ActorTimerData from "./ActorTimerData";
 
 /**
  * The Actor Manager manages actor objects of a specific actor type
  */
-const TIMER_METHOD_NAME = 'fire_timer';
-const REMINDER_METHOD_NAME = 'receive_reminder';
+const TIMER_METHOD_NAME = 'fireTimer';
+const REMINDER_METHOD_NAME = 'receiveReminder';
 
 export default class ActorManager<T extends AbstractActor> {
     readonly actorCls: Class<T>;
@@ -80,33 +81,6 @@ export default class ActorManager<T extends AbstractActor> {
     //     return Buffer.from("");
     // }
 
-    /**
-     * Execute the given method with requestBody on the given Actor
-     * 
-     * @param actorId 
-     * @param actorMethodName 
-     * @param requestBody 
-     * @param actorMethodContext 
-     * @returns 
-     */
-    async invoke(actorId: ActorId, actorMethodName: string, ...args: any): Promise<any> {
-        const actorObject = await this.getActiveActor(actorId);
-
-        // Check if the actor method exists? Skip type-checking as it's the power of Javascript
-        // @ts-ignore
-        if (typeof actorObject[actorMethodName] !== "function") {
-            throw new Error(JSON.stringify({
-                error: 'ACTOR_METHOD_DOES_NOT_EXIST',
-                errorMsg: `The actor method '${actorMethodName}' does not exist on ${this.actorCls.name}`
-            }));
-        }
-
-        // Call the actor method, Skip type-checking as it's the power of Javascript
-        // @ts-ignore
-        const res = await actorObject[actorMethodName](args);
-        return res;
-    }
-
     async getActiveActor(actorId: ActorId): Promise<T> {
         let actor = this.actors.get(actorId);
 
@@ -127,20 +101,62 @@ export default class ActorManager<T extends AbstractActor> {
         return actor;
     }
 
-    // async dispatchInternal(actorId: ActorId, methodContext: ActorMethodContext, dispatchAction: (actor: T) => Promise<Buffer>): Promise<Buffer> {
-    //     let actor = this.getActiveActor(actorId);
+    /**
+     * Execute the given method with requestBody on the given Actor
+     * 
+     * @param actorId 
+     * @param actorMethodName 
+     * @param requestBody 
+     * @param actorMethodContext 
+     * @returns 
+     */
+    async invoke(actorId: ActorId, actorMethodName: string, ...args: any): Promise<any> {
+        return await this.callActorMethod(actorId, actorMethodName, args);
+    }
 
-    //     let res;
+    async fireReminder(actorId: ActorId, reminderName: string, requestBody?: Buffer): Promise<void> {
+        // @todo: make sure we are remindable
+        const requestBodyDeserialized = requestBody; // @todo: deserialize?
+        const reminderData = ActorReminderData.fromObject(reminderName, requestBodyDeserialized as object);
+        await this.callActorMethod(actorId, REMINDER_METHOD_NAME, reminderData.reminderName, reminderData.state, reminderData.dueTime, reminderData.period);
+    }
 
-    //     try {
-    //         // @todo: actor re-entrancy
-    //         // @todo: pre action hook
-    //         res = await dispatchAction(actor);
-    //         // @todo: post action hook
-    //     } catch (e) {
-    //         // @todo: on_invoke failed hook
-    //     }
+    async fireTimer(actorId: ActorId, timerName: string, requestBody?: Buffer): Promise<void> {
+        // @todo: make sure we are remindable
+        const requestBodyDeserialized = requestBody; // @todo: deserialize?
+        const timerData = ActorTimerData.fromObject(timerName, requestBodyDeserialized as object);
+        
+        await this.callActorMethod(actorId, timerData.callback, timerData.state);
+    }
 
-    //     return res || Buffer.from("");
-    // }
+    // , dispatchAction: (actor: T) => Promise<Buffer>
+    async callActorMethod(actorId: ActorId, actorMethodName: string, ...args: any): Promise<Buffer> {
+        const actorObject = await this.getActiveActor(actorId);
+
+        // Check if the actor method exists? Skip type-checking as it's the power of Javascript
+        // @ts-ignore
+        if (typeof actorObject[actorMethodName] !== "function") {
+            throw new Error(JSON.stringify({
+                error: 'ACTOR_METHOD_DOES_NOT_EXIST',
+                errorMsg: `The actor method '${actorMethodName}' does not exist on ${this.actorCls.name}`
+            }));
+        }
+
+        // Call the actor method, Skip type-checking as it's the power of Javascript
+        // @ts-ignore
+        const res = await actorObject[actorMethodName](args);
+
+        return res;
+
+        // try {
+        //     // @todo: actor re-entrancy
+        //     // @todo: pre action hook
+        //     res = await dispatchAction(actor);
+        //     // @todo: post action hook
+        // } catch (e) {
+        //     // @todo: on_invoke failed hook
+        // }
+
+        // return res || Buffer.from("");
+    }
 }

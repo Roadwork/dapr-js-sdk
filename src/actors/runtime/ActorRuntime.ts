@@ -10,7 +10,7 @@ import ActorRuntimeConfig from "./ActorRuntimeConfig";
 export default class ActorRuntime {
     private static instance: ActorRuntime;
 
-    private daprClient: DaprClient;
+    private readonly daprClient: DaprClient;
     private actorManagers: Map<string, ActorManager<any>>;
     private actorRuntimeConfig: ActorRuntimeConfig = new ActorRuntimeConfig();
 
@@ -82,9 +82,37 @@ export default class ActorRuntime {
      * @param payload 
      * @returns 
      */
-    async invoke(actorTypeName: string, actorId: string, actorMethodName: string, payload?: any): Promise<Buffer> {
+    async invoke(actorTypeName: string, actorId: string, actorMethodName: string, requestBody?: Buffer): Promise<Buffer> {
         const actorIdObj = new ActorId(actorId);
         const manager = this.getActorManager(actorTypeName);
-        return await manager.invoke(actorIdObj, actorMethodName, payload);
+        return await manager.invoke(actorIdObj, actorMethodName, requestBody);
+    }
+
+    /**
+     * Fires a reminder for the actor
+     * 
+     * @param actorTypeName the name fo the actor type
+     * @param actorId the actor id
+     * @param name the name of the reminder
+     * @param requestBody the body passed to the reminder callback
+     */
+    async fireReminder(actorTypeName: string, actorId: string, name: string, requestBody?: Buffer) {
+        const actorIdObj = new ActorId(actorId);
+        const manager = this.getActorManager(actorTypeName);
+        return await manager.fireReminder(actorIdObj, name, requestBody);
+    }
+
+    /**
+     * Fires a timer for the actor
+     * 
+     * @param actorTypeName the name fo the actor type
+     * @param actorId the actor id
+     * @param name the name of the timer
+     * @param requestBody the body passed to the timer callback
+     */
+    async fireTimer(actorTypeName: string, actorId: string, name: string, requestBody?: Buffer) {
+        const actorIdObj = new ActorId(actorId);
+        const manager = this.getActorManager(actorTypeName);
+        return await manager.fireTimer(actorIdObj, name, requestBody);
     }
 }
