@@ -22,7 +22,7 @@ import ActorReminderData from "./ReminderData";
  * }
  */
 export default abstract class AbstractActor {
-  runtimeCtx: ActorRuntimeContext<any>;
+  // runtimeCtx: ActorRuntimeContext<any>;
   stateManager: ActorStateManager;
   id: ActorId;
   
@@ -32,9 +32,9 @@ export default abstract class AbstractActor {
    * @param runtimeContext context for the runtime
    * @param id actor identifier
    */
-  constructor(ctx: ActorRuntimeContext<any>, id: ActorId) {
+  constructor(id: ActorId) {
     this.id = id;
-    this.runtimeCtx = ctx;
+    // this.runtimeCtx = ctx;
     this.stateManager = new ActorStateManager(this);
   }
 
@@ -60,17 +60,17 @@ export default abstract class AbstractActor {
    * @param <Type> Type of the state object
    * @return Async void response
    */
-  async registerReminder<Type>(reminderName: string, state: Buffer, dueTime: string, period: string) {
-    const actorType = this.runtimeCtx.actorTypeInfo.name;
-    await this.runtimeCtx.daprClient.actor.reminderCreate(actorType, this.id.id, reminderName, {
-      period,
-      dueTime,
-      data: state
-    });
-  }
+  // async registerReminder<Type>(reminderName: string, state: Buffer, dueTime: string, period: string) {
+  //   const actorType = this.runtimeCtx.actorTypeInfo.name;
+  //   await this.runtimeCtx.daprClient.actor.reminderCreate(actorType, this.id.id, reminderName, {
+  //     period,
+  //     dueTime,
+  //     data: state
+  //   });
+  // }
 
-  async unregisterReminder(reminderName: string) {
-    const actorType = this.runtimeCtx.actorTypeInfo.name;
-    await this.runtimeCtx.daprClient.actor.reminderDelete(actorType, this.id.id, reminderName);
-  }
+  // async unregisterReminder(reminderName: string) {
+  //   const actorType = this.runtimeCtx.actorTypeInfo.name;
+  //   await this.runtimeCtx.daprClient.actor.reminderDelete(actorType, this.id.id, reminderName);
+  // }
 }

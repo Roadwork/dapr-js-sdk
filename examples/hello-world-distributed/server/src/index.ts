@@ -1,4 +1,4 @@
-import { DaprServer, HttpMethod } from "@roadwork/dapr-js-sdk";
+import { DaprServer, HttpMethod } from "@dapr/js-sdk";
 
 const serverHost = "127.0.0.1";
 const serverPort = "4000";

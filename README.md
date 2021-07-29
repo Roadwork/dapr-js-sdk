@@ -17,7 +17,7 @@ For an example of the library, see the [Examples folder](/examples)
 To create a simply pub sub listener, we can now execute the following:
 
 ```javascript
-import { DaprClient, DaprServer } from "@roadwork/dapr-js-sdk";
+import { DaprClient, DaprServer } from "@dapr/js-sdk";
 
 // Subscribe
 const server = new DaprServer(daprHost, daprPort, daprInternalServerPort);
@@ -42,7 +42,7 @@ dapr run --app-id hello-world --app-port 4000 --dapr-http-port 3500 --components
 **Library:**
 
 ```javascript
-import { DaprClient, DaprServer } from "@roadwork/dapr-js-sdk";
+import { DaprClient, DaprServer } from "@dapr/js-sdk";
 
 // Dapr ConnectionInfo
 // daprUrl: the url to the Dapr Sidecar

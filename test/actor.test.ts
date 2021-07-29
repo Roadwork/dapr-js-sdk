@@ -1,5 +1,7 @@
 import { DaprClient, DaprServer, HttpMethod } from '../src';
 
+import DemoCounterActorImpl from './actor/DemoCounterActorImpl';
+
 const serverHost = "127.0.0.1";
 const serverPort = "50051";
 const daprHost = "127.0.0.1";
@@ -24,9 +26,7 @@ describe('grpc', () => {
     describe('actors', () => {
         it('should be able to register an actor', async () => {
             const server = new DaprServer(serverHost, serverPort);
-            server.actor.registerActor();
-
-            await client.binding.send("binding-mqtt", "create", { hello: "world" });
+            server.actor.registerActor(DemoCounterActorImpl);
         })
     });
 })

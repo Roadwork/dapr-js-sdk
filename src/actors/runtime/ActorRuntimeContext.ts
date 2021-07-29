@@ -4,18 +4,26 @@ import ActorFactory from "./ActorFactory";
 import ActorTypeInformation from "./ActorTypeInformation";
 import StateProvider from "./StateProvider";
 
-export default class ActorRuntimeContext<T extends AbstractActor> {
-    actorFactory: ActorFactory<T>;
-    actorTypeInfo: ActorTypeInformation<T>;
-    daprClient: DaprClient;
-    provider: StateProvider;
+export default class ActorManagerContext<T extends AbstractActor> {
+    private actorFactory: ActorFactory<T>;
+    private actorTypeInformation: ActorTypeInformation<T>;
+    private daprClient: DaprClient;
+    private provider: StateProvider;
 
-    constructor(actorFactory: ActorFactory<T>, actorTypeInfo: ActorTypeInformation<T>, actorClient: DaprClient) {
-        this.actorTypeInfo = actorTypeInfo;
+    constructor(actorFactory: ActorFactory<T>, actorTypeInformation: ActorTypeInformation<T>, actorClient: DaprClient) {
+        this.actorTypeInformation = actorTypeInformation;
         this.actorFactory = actorFactory;
         
         // Create state management provider for the actor
         this.daprClient = actorClient;
         this.provider = new StateProvider(this.daprClient);
+    }
+
+    getActorTypeInformation(): ActorTypeInformation<T> {
+        return this.actorTypeInformation;
+    }
+
+    getActorFactory(): ActorFactory<T> {
+        return this.actorFactory;
     }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@roadwork/dapr-js-sdk-example-hello-world-distributed",
+  "name": "@dapr/js-sdk-example-hello-world-distributed",
   "version": "1.0.0",
   "description": "An example utilizing the Dapr JS SDK",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@roadwork/dapr-js-sdk": "file:../../../build",
+    "@dapr/js-sdk": "file:../../../build",
     "@types/node": "^15.3.0"
   }
 }
