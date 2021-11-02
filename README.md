@@ -1,3 +1,5 @@
+## ⚠️ This SDK has been deprecated. The official Dapr JS SDK is now situated at [https://github.com/dapr/js-sdk](https://github.com/dapr/js-sdk) and [https://www.npmjs.com/package/dapr-client](https://www.npmjs.com/package/dapr-client)
+
 # Dapr Node.js SDK
 
 This is an unofficial [Dapr](https://dapr.io) Node.js SDK that allows interfacing with Dapr applications. The release is to demonstrate the possible way of structuring the SDK for community use.
