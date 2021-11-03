@@ -140,5 +140,5 @@ dist/
 tmp/
 temp/
 
-# Roadwork/dapr-js-sdk
+# dapr-js-sdk
 build/
